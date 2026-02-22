@@ -347,6 +347,14 @@ export function exportProfile() {
   // เพิ่ม metadata
   data._exportDate = new Date().toISOString();
   data._version = 'v6';
+  // บันทึก Sim State (ปีลาออก + ค่าควบคุม Simulator ทั้งหมด)
+  data._simState = {
+    retireYear:      parseInt(document.getElementById('retireYear').value),
+    retireMonth:     parseInt(document.getElementById('retireMonth').value),
+    packageOverride: document.getElementById('packageMonths').value,
+    exempt600k:      document.getElementById('exempt600k').checked,
+    pvdHandling:     document.getElementById('pvdHandling').value,
+  };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -386,6 +394,17 @@ export function importProfile(event) {
         data.pinned.forEach(p => PINNED.push(p));
       }
       applyProfileToUI();
+      // rebuild retireYear dropdown ให้ตรงกับ birthYear + retireMaxAge ที่ import มา
+      buildRetireYearOptions(data._simState ? data._simState.retireYear : undefined);
+      // Restore Sim State ถ้ามี (_simState ถูกเพิ่มตั้งแต่ _version v6)
+      if (data._simState) {
+        const sim = data._simState;
+        if (sim.retireYear)             document.getElementById('retireYear').value      = sim.retireYear;
+        if (sim.retireMonth)            document.getElementById('retireMonth').value     = sim.retireMonth;
+        if (sim.packageOverride != null) document.getElementById('packageMonths').value  = sim.packageOverride;
+        if (sim.exempt600k != null)     document.getElementById('exempt600k').checked    = sim.exempt600k;
+        if (sim.pvdHandling)            document.getElementById('pvdHandling').value     = sim.pvdHandling;
+      }
       activeProfile.masterData = generateMasterData();
       // baseSalary จะ auto-calculate ใน readState() ตามปีลาออก
       autoSaveActiveProfile();
