@@ -1,0 +1,171 @@
+/* Early Retire & Tax Simulator — CSS */
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F0F4F8;color:#1E293B;font-size:14px}
+
+/* === Header === */
+.header{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.header h1{font-size:26px;font-weight:800;letter-spacing:0.5px} .header .sub{color:#94A3B8;font-size:14px;margin-top:6px}
+.header .highlight{font-size:24px;font-weight:900;color:#F59E0B;text-align:right}
+.header .highlight .small{font-size:12px;color:#94A3B8;font-weight:400}
+
+/* === แท็บ === */
+.main-tabs{display:flex;gap:0;background:#1E293B;padding:0 32px;flex-wrap:wrap}
+.main-tab{padding:12px 18px;cursor:pointer;color:#94A3B8;font-weight:600;border-bottom:3px solid transparent;transition:all .2s;font-size:14px;white-space:nowrap}
+.main-tab:hover{color:#E2E8F0} .main-tab.active{color:#fff;border-bottom:3px solid #F59E0B}
+.tab-panel{display:none;padding:24px 32px;max-width:1400px;margin:0 auto} .tab-panel.active{display:block}
+
+/* === การ์ด === */
+.cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
+.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card .label{font-size:12px;color:#64748B;margin-bottom:4px} .card .val{font-size:22px;font-weight:800;color:#0F172A}
+.card .sub{font-size:11px;color:#94A3B8;margin-top:2px}
+.card .delta{font-size:12px;font-weight:700;margin-top:4px}
+.delta-up{color:#10B981} .delta-down{color:#EF4444}
+.card-green{border-left:4px solid #10B981} .card-red{border-left:4px solid #EF4444}
+.card-blue{border-left:4px solid #2563EB} .card-amber{border-left:4px solid #F59E0B}
+.card-purple{border-left:4px solid #7C3AED} .card-gray{border-left:4px solid #94A3B8}
+
+/* === Control Panel === */
+.ctrl-panel{background:#1E293B;border-radius:12px;padding:20px 24px;margin-bottom:20px;color:#E2E8F0}
+.ctrl-panel h3{color:#F59E0B;font-size:15px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center}
+.ctrl-panel h3 .toggle-btn{background:#334155;color:#94A3B8;border:none;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:12px}
+.ctrl-panel h3 .toggle-btn:hover{color:#fff}
+.ctrl-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px}
+.ctrl-group{display:flex;flex-direction:column;gap:4px}
+.ctrl-group label{font-size:12px;color:#94A3B8;font-weight:600;display:flex;align-items:center;gap:4px}
+.ctrl-group label .info{display:inline-block;width:14px;height:14px;border-radius:50%;background:#475569;color:#CBD5E1;text-align:center;font-size:10px;line-height:14px;cursor:help}
+.ctrl-group input[type="range"]{width:100%;accent-color:#F59E0B;height:6px}
+.ctrl-group input[type="number"],.ctrl-group input[type="text"][data-format-comma],.ctrl-group select{background:#0F172A;border:1px solid #475569;color:#E2E8F0;padding:8px 10px;border-radius:8px;font-size:14px;width:100%}
+.ctrl-group input[type="number"]:focus,.ctrl-group input[type="text"][data-format-comma]:focus,.ctrl-group select:focus{outline:none;border-color:#F59E0B}
+.ctrl-val{font-size:16px;font-weight:800;color:#F59E0B;margin-top:2px}
+.ctrl-sub{font-size:11px;color:#64748B}
+
+/* Toggle Switch */
+.toggle{position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#475569;border-radius:24px;transition:.3s}
+.toggle .slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked+.slider{background:#10B981}
+.toggle input:checked+.slider::before{transform:translateX(20px)}
+.toggle-row{display:flex;align-items:center;gap:10px}
+
+/* Collapsible */
+.collapsible{overflow:hidden;transition:max-height .3s ease}
+.collapsed{max-height:0 !important;margin:0 !important;padding-top:0 !important;padding-bottom:0 !important}
+
+/* Month Slider Custom */
+.month-slider-wrap{position:relative;padding:8px 0}
+.month-labels{display:flex;justify-content:space-between;font-size:10px;color:#64748B;margin-top:4px}
+.month-marker{position:absolute;top:-4px;font-size:9px;font-weight:700;padding:1px 4px;border-radius:4px}
+.month-marker.danger{background:#EF4444;color:#fff}
+.month-marker.bonus{background:#F59E0B;color:#fff}
+
+/* === กราฟ/ตาราง === */
+.chart-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;min-width:0;overflow-x:auto}
+.chart-box h3{font-size:15px;font-weight:700;margin-bottom:12px;color:#1E293B}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid2>*{min-width:0}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#F1F5F9;padding:8px 6px;text-align:left;font-weight:700;color:#475569;font-size:12px}
+td{padding:8px 6px;border-bottom:1px solid #E5E7EB}
+.right{text-align:right} .center{text-align:center} .bold{font-weight:700}
+
+/* Heatmap */
+.ht-green{background:#D1FAE5;color:#065F46;font-weight:700}
+.ht-lgreen{background:#ECFDF5;color:#065F46}
+.ht-yellow{background:#FEF3C7;color:#92400E}
+.ht-orange{background:#FFEDD5;color:#9A3412}
+.ht-red{background:#FEE2E2;color:#991B1B;font-weight:700}
+.ht-dred{background:#FECACA;color:#7F1D1D;font-weight:700}
+.heatmap-table td,.heatmap-table th{text-align:center;padding:6px 4px;font-size:12px;cursor:pointer}
+.heatmap-table tr:hover td{opacity:.85}
+.heatmap-table td.selected-cell{outline:3px solid #F59E0B;outline-offset:-2px}
+
+/* Package Badge */
+.pkg-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700}
+.pkg-36{background:#D1FAE5;color:#065F46}.pkg-18{background:#FEF3C7;color:#92400E}
+.pkg-12{background:#FFEDD5;color:#9A3412}.pkg-6{background:#FEE2E2;color:#991B1B}.pkg-0{background:#F1F5F9;color:#64748B}
+
+/* Alert */
+.alert-box{background:#FEF2F2;border:2px solid #EF4444;border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;font-size:13px}
+.alert-icon{font-size:20px;line-height:1}
+.alert-content{color:#991B1B;line-height:1.6} .alert-content strong{color:#7F1D1D}
+
+/* Warning/Info boxes */
+.info-box{background:#EFF6FF;border:1px solid #93C5FD;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:#1E40AF;line-height:1.6}
+.warn-box{background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;padding:14px 18px;margin-bottom:16px;font-size:13px;color:#92400E;line-height:1.6}
+
+/* Scenario Pin */
+.pin-bar{background:linear-gradient(90deg,#1E3A5F,#0F172A);border-radius:10px;padding:12px 20px;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;color:#E2E8F0;font-size:13px;flex-wrap:wrap;gap:8px}
+.pin-bar .pin-label{color:#F59E0B;font-weight:700}
+.pin-bar button{background:#EF4444;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600}
+.pin-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:16px;font-size:12px;font-weight:700;color:#fff;transition:all .2s;margin-right:4px}
+.pin-chip .pin-remove{cursor:pointer;font-size:14px;opacity:.7;transition:opacity .2s}
+.pin-chip .pin-remove:hover{opacity:1;color:#FEE2E2}
+.delta-group{margin-top:4px}
+.delta-group .delta{font-size:11px;margin-top:2px;padding-left:4px}
+
+/* Buttons */
+.btn{padding:8px 16px;border:none;border-radius:8px;font-weight:700;cursor:pointer;font-size:13px;transition:all .2s}
+.btn-primary{background:#F59E0B;color:#0F172A}.btn-primary:hover{background:#D97706}
+.btn-secondary{background:#334155;color:#E2E8F0}.btn-secondary:hover{background:#475569}
+.btn-danger{background:#EF4444;color:#fff}.btn-danger:hover{background:#DC2626}
+.btn-sm{padding:4px 10px;font-size:11px}
+
+/* Decision Card */
+.decision-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center;border:2px solid transparent;transition:all .2s}
+.decision-card.best{border-color:#10B981;background:#F0FDF4}
+.decision-card .rank{font-size:28px;font-weight:900;margin-bottom:4px}
+
+/* Timeline */
+.timeline{position:relative;padding-left:32px;margin:20px 0}
+.timeline::before{content:'';position:absolute;left:12px;top:0;bottom:0;width:3px;background:#CBD5E1;border-radius:2px}
+.tl-item{position:relative;margin-bottom:20px;padding-left:16px}
+.tl-item::before{content:'';position:absolute;left:-24px;top:6px;width:12px;height:12px;border-radius:50%;background:#2563EB;border:3px solid #fff;box-shadow:0 0 0 2px #2563EB}
+.tl-item.star::before{background:#F59E0B;box-shadow:0 0 0 2px #F59E0B}
+.tl-item .tl-date{font-size:11px;color:#64748B;font-weight:600} .tl-item .tl-title{font-size:14px;font-weight:700;color:#1E293B}
+.tl-item .tl-desc{font-size:12px;color:#64748B;margin-top:2px}
+
+/* Checklist */
+.checklist{list-style:none;padding:0}
+.checklist li{padding:8px 0;border-bottom:1px solid #E5E7EB;display:flex;align-items:flex-start;gap:8px;font-size:13px}
+.checklist li::before{content:'';display:inline-block;width:18px;height:18px;border:2px solid #CBD5E1;border-radius:4px;flex-shrink:0;margin-top:1px}
+
+/* Score bar */
+.score-bar{height:8px;border-radius:4px;background:#E2E8F0;overflow:hidden;margin-top:4px}
+.score-fill{height:100%;border-radius:4px}
+
+/* Disclaimer */
+.disclaimer{background:#FFFBEB;border:1px solid #FCD34D;border-radius:12px;padding:14px;margin:20px 0;font-size:12px;color:#92400E;line-height:1.6}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:#0F172A;color:#E2E8F0;padding:12px 20px;border-radius:10px;font-size:13px;z-index:9999;opacity:0;transform:translateY(20px);transition:all .3s;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* Responsive */
+@media(max-width:1000px){.grid3{grid-template-columns:1fr}}
+@media(max-width:900px){.grid2{grid-template-columns:1fr}.cards{grid-template-columns:1fr 1fr}}
+@media(max-width:768px){.header{padding:14px 16px}.tab-panel{padding:16px}.cards{grid-template-columns:1fr 1fr}.ctrl-row{grid-template-columns:1fr 1fr}.main-tabs{padding:0 12px}}
+@media(max-width:480px){.cards{grid-template-columns:1fr}.ctrl-row{grid-template-columns:1fr}}
+/* ปุ่ม Zoom ปรับขนาดตัวหนังสือ */
+.zoom-btn{background:#334155;color:#E2E8F0;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700}
+.zoom-btn:hover{background:#475569}
+@media print{body{zoom:1 !important}.main-tabs,.ctrl-panel,.pin-bar,.no-print{display:none !important}.tab-panel{display:block !important;page-break-after:always}}
+/* Tooltip อธิบายกราฟ — ℹ️ icon + popup เมื่อ hover */
+.chart-info{display:inline-block;width:20px;height:20px;border-radius:50%;background:#E2E8F0;color:#475569;text-align:center;font-size:11px;line-height:20px;cursor:help;position:relative;margin-left:6px;vertical-align:middle}
+.chart-info:hover .chart-info-popup{display:block}
+.chart-info-popup{display:none;position:absolute;left:50%;transform:translateX(-50%);top:26px;background:#0F172A;color:#E2E8F0;padding:10px 14px;border-radius:8px;font-size:12px;line-height:1.6;width:300px;z-index:100;box-shadow:0 4px 12px rgba(0,0,0,.3);font-weight:400;white-space:normal}
+.toggle-net{background:#10B981!important;color:#fff!important}
+
+/* About & Welcome Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:10000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.about-modal{background:#fff;border-radius:16px;padding:32px;max-width:480px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.3);position:relative;transform:scale(.9);transition:transform .3s}
+.modal-overlay.show .about-modal,.modal-overlay.show .welcome-modal{transform:scale(1)}
+.modal-close{position:absolute;top:12px;right:16px;font-size:22px;cursor:pointer;color:#94A3B8;background:none;border:none;line-height:1}
+.modal-close:hover{color:#1E293B}
+.welcome-overlay{z-index:10001;background:rgba(15,23,42,.85)}
+.welcome-modal{background:#fff;border-radius:20px;padding:40px;max-width:560px;width:90%;box-shadow:0 24px 80px rgba(0,0,0,.4);text-align:center;transform:translateY(30px);transition:transform .4s}
+.modal-overlay.show .welcome-modal{transform:translateY(0)}
+.welcome-btn{padding:12px 28px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:15px;transition:all .2s}
+.welcome-btn:hover{filter:brightness(1.1);transform:translateY(-1px)}

@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Early Retire & Tax Simulator V.01_2026</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<link rel="stylesheet" href="/src/styles.css">
+</head><body>
+
+<!-- ===== HEADER ===== -->
+<div class="header">
+<div>
+<h1>Early Retire & Tax Simulator V.01_2026</h1>
+<div class="sub"><span id="headerUserName" style="font-size:15px;font-weight:600;color:#E2E8F0"></span><span id="headerSep1" style="margin:0 6px;color:#475569;display:none">|</span><span id="headerCompany" style="font-size:14px;color:#CBD5E1"></span><span style="margin:0 6px;color:#475569">|</span><span style="font-size:13px">Interactive Simulator</span></div>
+</div>
+<div class="highlight">
+<div id="headerNetIncome">-</div>
+<div class="small">เงินสุทธิหลังภาษี (real-time)</div>
+</div>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<button onclick="changeZoom(-1)" class="zoom-btn" title="ตัวหนังสือเล็กลง">A-</button>
+<button onclick="changeZoom(0)" class="zoom-btn" style="color:#F59E0B" title="ขนาดปกติ">A</button>
+<button onclick="changeZoom(1)" class="zoom-btn" title="ตัวหนังสือใหญ่ขึ้น">A+</button>
+<span id="zoomLabel" style="font-size:11px;color:#94A3B8;min-width:36px;text-align:center">100%</span>
+<button onclick="showAbout()" class="zoom-btn" title="เกี่ยวกับเครื่องมือนี้">ℹ️</button>
+<button onclick="exportPDF()" class="zoom-btn" style="background:#F59E0B;color:#0F172A;padding:4px 14px" title="ส่งออกเป็น PDF">📄 PDF</button>
+</div>
+</div>
+
+<!-- ===== แท็บ (8 แท็บ) ===== -->
+<div class="main-tabs">
+<div class="main-tab" onclick="switchTab(0)">📖 วิธีใช้</div>
+<div class="main-tab active" onclick="switchTab(1)">👤 ข้อมูล & แพคเกจ</div>
+<div class="main-tab" onclick="switchTab(2)">🎯 Simulator</div>
+<div class="main-tab" onclick="switchTab(3)">📊 รายละเอียดภาษี</div>
+<div class="main-tab" onclick="switchTab(4)">📋 ภาพรวมทุกอายุ</div>
+<div class="main-tab" onclick="switchTab(5)">🔥 Heatmap</div>
+<div class="main-tab" onclick="switchTab(6)">💡 กลยุทธ์ & NPV</div>
+<div class="main-tab" onclick="switchTab(7)">⚖️ กฎหมาย</div>
+</div>
+
+<!-- ===== TAB 0: วิธีใช้ ===== -->
+<div class="tab-panel" id="panel-0">
+<h3 style="margin-bottom:16px;font-size:20px">📖 วิธีใช้ Early Retire & Tax Simulator V.01_2026</h3>
+
+<div class="chart-box">
+<h3>🎯 เครื่องมือนี้ทำอะไรได้?</h3>
+<div style="font-size:13px;line-height:1.8;color:#475569">
+<p>เครื่องมือวิเคราะห์ภาษีสำหรับคนที่วางแผน <strong>Early Retirement</strong> จากบริษัท — คำนวณเงินก้อน, ภาษี, เงินสุทธิที่ได้รับจริง โดยปรับเงื่อนไขได้ทั้งหมดแบบ Real-time</p>
+</div></div>
+
+<div class="chart-box">
+<h3>📝 ขั้นตอนการใช้งาน</h3>
+<div style="font-size:13px;line-height:2;color:#475569">
+<p>🔵 <strong>Step 1:</strong> ไปที่ Tab <strong>"👤 ข้อมูล & แพคเกจ"</strong> → กรอกข้อมูลส่วนตัว (ชื่อ, วันเกิด, ปีเริ่มงาน, เงินเดือน, PVD สะสม)</p>
+<p>🔵 <strong>Step 2:</strong> กรอก <strong>โบนัส & ค่าลดหย่อนภาษี</strong> (อยู่ถัดจากข้อมูลส่วนตัว) — โบนัสกลางปี/ปลายปี, ค่าลดหย่อนต่างๆ</p>
+<p>🔵 <strong>Step 3:</strong> ตั้งค่า <strong>แพคเกจ Early Retirement</strong> ของบริษัทคุณ (กี่เดือนต่ออายุเท่าไร)</p>
+<p>🟢 <strong>Step 4:</strong> ไปที่ Tab <strong>"🎯 Simulator"</strong> → เลือกเดือน/ปีที่จะลาออก → ดูผลลัพธ์ทันที (กดสลับ <strong>Gross/Net</strong> ดูก่อน-หลังภาษีได้)</p>
+<p>🟢 <strong>Step 5:</strong> ใช้ <strong>"📌 Pin Scenario"</strong> เพื่อ pin สูงสุด 3 scenarios แล้วเปรียบเทียบ side-by-side</p>
+<p>🟡 <strong>Step 6:</strong> ดู Tab อื่นๆ (<strong>📊 รายละเอียดภาษี, 📋 ภาพรวมทุกอายุ, 🔥 Heatmap, 💡 กลยุทธ์ & NPV, ⚖️ กฎหมาย</strong>) เพื่อวิเคราะห์เชิงลึก</p>
+<p style="margin-top:8px;padding:10px;background:#F0FDF4;border-radius:8px;border:1px solid #BBF7D0">💾 <strong>Tip:</strong> กด <strong>"บันทึก Profile"</strong> เพื่อเซฟข้อมูล | ใช้ <strong>"📥 Export JSON"</strong> ดาวน์โหลดไฟล์เก็บถาวร | ใช้ <strong>"📸 Snapshot"</strong> บันทึกผลลัพธ์ตามวันที่ เอาไว้เทียบกัน</p>
+</div></div>
+
+<div class="chart-box">
+<h3>💡 คำศัพท์สำคัญ</h3>
+<table>
+<tr><th style="width:200px">คำศัพท์</th><th>ความหมาย</th></tr>
+<tr><td><strong>Early Merit</strong></td><td>เงินก้อนจากโปรแกรม Early Retirement (จำนวนเดือน × เงินเดือน)</td></tr>
+<tr><td><strong>ชดเชยตามกฎหมาย</strong></td><td>เงินชดเชยที่ได้ตาม พ.ร.บ.คุ้มครองแรงงาน (คิดตามอายุงาน)</td></tr>
+<tr><td><strong>แยกยื่นภาษี</strong></td><td>เงินก้อนจากการออกจากงานสามารถแยกยื่นภาษีได้ (มาตรา 48(5)) ทำให้ภาษีถูกลง</td></tr>
+<tr><td><strong>ยกเว้น 600K</strong></td><td>ถ้าถูก "เลิกจ้าง" ตามกฎหมาย ได้รับยกเว้นภาษี 600,000 บาทแรก</td></tr>
+<tr><td><strong>PVD</strong></td><td>กองทุนสำรองเลี้ยงชีพ — โอนไป RMF = ปลอดภาษี / ถอน = เสียภาษี</td></tr>
+<tr><td><strong>Effective Tax Rate</strong></td><td>อัตราภาษีจริงที่จ่าย = ภาษีรวม ÷ เงินรวม</td></tr>
+<tr><td><strong>NPV</strong></td><td>มูลค่าปัจจุบันสุทธิ — เปรียบเทียบเงินในอนาคตกับเงินปัจจุบัน</td></tr>
+<tr><td><strong>Gross / Net</strong></td><td>Gross = เงินก่อนหักภาษี | Net = เงินหลังหักภาษีแล้ว — กดปุ่มสลับดูได้ที่ Tab ภาพรวม</td></tr>
+<tr><td><strong>Snapshot</strong></td><td>บันทึกผลลัพธ์ ณ วันที่ เอาไว้เทียบกันทีหลังว่าเปลี่ยนเงื่อนไขแล้วผลต่างกันอย่างไร</td></tr>
+<tr><td><strong>Opportunity Cost</strong></td><td>ต้นทุนโอกาส — เงินเดือน+โบนัส+สวัสดิการที่เสียไปถ้าลาออกก่อนเกษียณปกติ</td></tr>
+</table></div>
+
+<div class="chart-box">
+<h3>❓ FAQ — คำถามที่พบบ่อย</h3>
+<div style="font-size:13px;line-height:1.8;color:#475569">
+<p><strong>Q: ข้อมูล Master Data มาจากไหน?</strong><br>A: คำนวณจากข้อมูลที่กรอกใน Tab "ข้อมูล & แพคเกจ" ทั้งหมด — เงินเดือน, อัตราขึ้นเงินเดือน, โบนัส, สวัสดิการ, แพคเกจ ฯลฯ</p>
+<p><strong>Q: ทำไมเปลี่ยนอายุลาออกแล้วภาษีต่างกันเยอะ?</strong><br>A: เพราะจำนวนเดือนของแพคเกจ Early Retirement อาจเปลี่ยนตามช่วงอายุ ทำให้เงินก้อนต่างกัน → ภาษีต่างกัน (ดูตาราง Package ใน Tab ข้อมูล)</p>
+<p><strong>Q: PVD ควรโอนไป RMF หรือถอนออก?</strong><br>A: ถ้าอายุยังไม่ถึง 55 ปี → โอนไป RMF for PVD จะปลอดภาษี / ถ้าถอนออกจะต้องเสียภาษี — ขึ้นอยู่กับแผนการเงินของแต่ละคน</p>
+<p><strong>Q: ข้อมูลเซฟอยู่ที่ไหน?</strong><br>A: "บันทึก Profile" เก็บใน Browser นี้ (localStorage) — ถ้าลบข้อมูลเว็บจะหาย ใช้ "📥 Export JSON" เพื่อดาวน์โหลดไฟล์เก็บถาวรได้</p>
+<p><strong>Q: สลับดู Gross/Net ยังไง?</strong><br>A: กดปุ่ม "💰 Gross/Net" ที่ Tab Simulator หรือ Tab "📋 ภาพรวมทุกอายุ" — สลับระหว่างเงินก่อนภาษีและหลังภาษี</p>
+<p><strong>Q: ใส่ข้อมูลผิดแล้วจะเริ่มใหม่ยังไง?</strong><br>A: กดปุ่ม "🧹 ล้างข้อมูล" ใน Simulator → รีเซ็ตเป็นค่าเริ่มต้น หรือ Import JSON จากไฟล์ที่เคย Export ไว้</p>
+</div></div>
+
+<div class="disclaimer">
+<strong>⚠️ Disclaimer:</strong> เครื่องมือนี้เป็นเพียงการประมาณการเบื้องต้น ผลลัพธ์อาจแตกต่างจากความเป็นจริง ควรปรึกษาผู้เชี่ยวชาญด้านภาษีหรือนักวางแผนการเงินก่อนตัดสินใจ
+</div>
+</div>
+
+<!-- ===== TAB 1: ข้อมูลส่วนตัว & แพคเกจ ===== -->
+<div class="tab-panel active" id="panel-1">
+<h3 style="margin-bottom:16px;font-size:18px">👤 ข้อมูลส่วนตัว & แพคเกจบริษัท</h3>
+
+<!-- Profile Management Bar -->
+<div style="background:#1E293B;border-radius:10px;padding:14px 20px;margin-bottom:20px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+<button class="btn btn-secondary" onclick="resetDefaults()" title="ล้างข้อมูลทั้งหมด เริ่มใส่ใหม่">🧹 ล้างข้อมูล</button>
+<button class="btn btn-primary" onclick="saveProfile()">💾 บันทึก Profile</button>
+<select id="profileSelect" style="background:#0F172A;border:1px solid #475569;color:#E2E8F0;padding:8px 10px;border-radius:8px;font-size:13px;min-width:180px"></select>
+<button class="btn btn-secondary" onclick="smartLoad()" title="เลือก Profile จาก dropdown แล้วกด หรือกดเลยเพื่อ Import JSON จากไฟล์">📂 โหลด / Import</button>
+<button class="btn btn-danger btn-sm" onclick="deleteProfile()">🗑 ลบ</button>
+<span style="border-left:1px solid #475569;height:24px;margin:0 4px"></span>
+<button class="btn btn-secondary" onclick="exportProfile()">📥 Export JSON</button>
+<input type="file" id="importFile" accept=".json" style="display:none" onchange="importProfile(event)">
+</div>
+
+<!-- 📸 Snapshot Timeline -->
+<div class="chart-box" style="margin-bottom:16px">
+<h3>📸 Snapshot Timeline <span style="font-size:12px;color:#64748B;font-weight:400">— บันทึกผลลัพธ์ตามวันที่ เทียบกันได้</span></h3>
+<div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap">
+  <button class="btn btn-primary" onclick="saveSnapshot()">📸 บันทึก Snapshot</button>
+  <button class="btn btn-danger btn-sm" onclick="clearSnapshots()">🗑 ล้างทั้งหมด</button>
+</div>
+<div style="margin:8px 0;font-size:12px;padding:10px 14px;background:#F0F9FF;border:1px solid #BAE6FD;border-radius:8px;color:#0C4A6E">
+  <strong>📍 ข้อมูลอยู่ที่ไหน?</strong><br>
+  • <strong>📸 บันทึก Snapshot</strong> = เก็บใน Browser นี้ (เปลี่ยน Browser หรือลบข้อมูลเว็บจะหาย)<br>
+  • <strong>📥 Export JSON</strong> = ดาวน์โหลดไฟล์ .json ไปที่โฟลเดอร์ <strong>Downloads</strong> ของคอมคุณ — เก็บถาวรได้
+</div>
+<div id="snapshotList"></div>
+</div>
+
+<!-- ข้อมูลส่วนตัว -->
+<div class="chart-box">
+<h3>ข้อมูลส่วนตัว</h3>
+<div class="ctrl-row" style="gap:16px">
+<div class="ctrl-group"><label>ชื่อ-นามสกุล</label><input type="text" id="profileName" value="" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+<div class="ctrl-group"><label>บริษัท</label><input type="text" id="profileCompany" value="" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+</div>
+<div class="ctrl-row" style="gap:16px;margin-top:12px">
+<div class="ctrl-group"><label>ปีเกิด (พ.ศ.)</label><input type="number" id="profileBirthYear" value="2530" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+<div class="ctrl-group"><label>เดือนเกิด</label><input type="number" id="profileBirthMonth" value="1" min="1" max="12" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+<div class="ctrl-group"><label>วันเกิด</label><input type="number" id="profileBirthDay" value="1" min="1" max="31" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+<div class="ctrl-group"><label>ปีเริ่มทำงาน (พ.ศ.)</label><input type="number" id="profileStartYear" value="2555" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+</div>
+<div class="ctrl-row" style="gap:16px;margin-top:12px">
+<div class="ctrl-group"><label>เงินเดือนปัจจุบัน (฿)</label><input type="number" id="profileSalary" value="0" step="1000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+<div class="ctrl-group"><label>PVD สะสม (฿)</label><input type="number" id="profilePvd" value="0" step="10000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+</div>
+</div>
+
+<!-- 💼 โบนัส & ค่าลดหย่อนภาษี -->
+<div class="chart-box">
+<h3>💼 โบนัส & ค่าลดหย่อนภาษี</h3>
+<p style="font-size:12px;color:#64748B;margin-bottom:12px">ใส่ข้อมูลโบนัสและค่าลดหย่อนที่นี่ — Simulator จะดึงไปใช้คำนวณอัตโนมัติ</p>
+
+<h4 style="font-size:13px;color:#94A3B8;margin:8px 0">🎁 โบนัส</h4>
+<div class="ctrl-row">
+<div class="ctrl-group">
+<label>โบนัสกลางปี (มิ.ย.) <span class="info" title="โบนัสจ่ายเดือน มิ.ย. — ต้องทำงานถึง มิ.ย. จึงจะได้">?</span></label>
+<div class="toggle-row">
+<label class="toggle"><input type="checkbox" id="bonusMid" checked onchange="onInputChange()"><span class="slider"></span></label>
+<span>x</span>
+<input type="number" id="bonusMidMult" value="1.3" step="0.1" min="0" max="5" style="width:70px" oninput="onInputChange()">
+<span>เดือน</span>
+</div>
+</div>
+<div class="ctrl-group">
+<label>โบนัสปลายปี (ธ.ค.) <span class="info" title="โบนัสจ่ายเดือน ธ.ค. — ต้องทำงานถึง ธ.ค. จึงจะได้">?</span></label>
+<div class="toggle-row">
+<label class="toggle"><input type="checkbox" id="bonusEnd" checked onchange="onInputChange()"><span class="slider"></span></label>
+<span>x</span>
+<input type="number" id="bonusEndMult" value="1.3" step="0.1" min="0" max="5" style="width:70px" oninput="onInputChange()">
+<span>เดือน</span>
+</div>
+</div>
+</div>
+
+<h4 style="font-size:13px;color:#94A3B8;margin:12px 0 8px">📋 ค่าลดหย่อน</h4>
+<div class="ctrl-row">
+<div class="ctrl-group">
+<label>ส่วนตัว</label>
+<input type="number" id="dedPersonal" value="60000" step="10000" data-format-comma="true" oninput="onInputChange()">
+</div>
+<div class="ctrl-group">
+<label>บิดามารดา</label>
+<select id="dedParents" onchange="onInputChange()">
+<option value="0">ไม่มี (0)</option>
+<option value="30000" selected>1 คน (30,000)</option>
+<option value="60000">2 คน (60,000)</option>
+</select>
+</div>
+<div class="ctrl-group">
+<label>ประกันชีวิต</label>
+<input type="number" id="dedLifeIns" value="100000" step="10000" max="100000" data-format-comma="true" oninput="onInputChange()">
+</div>
+<div class="ctrl-group">
+<label>ประกันบำนาญ</label>
+<input type="number" id="dedAnnuity" value="155000" step="10000" max="200000" data-format-comma="true" oninput="onInputChange()">
+</div>
+</div>
+<div class="ctrl-row">
+<div class="ctrl-group">
+<label>PVD contribution (%)</label>
+<input type="number" id="dedPvdRate" value="5" step="1" min="2" max="15" oninput="onInputChange()">
+</div>
+<div class="ctrl-group">
+<label>RMF (ซื้อเพิ่มก่อนออก)</label>
+<input type="number" id="dedRmf" value="0" step="10000" data-format-comma="true" oninput="onInputChange()">
+</div>
+<div class="ctrl-group">
+<label>Thai ESG / ESGX</label>
+<input type="number" id="dedEsg" value="0" step="10000" data-format-comma="true" oninput="onInputChange()">
+</div>
+<div class="ctrl-group">
+<label>ประกันสังคม/เดือน <span class="info" title="คำนวณอัตโนมัติตามปี (override ได้)">?</span></label>
+<input type="number" id="dedSS" value="875" step="100" oninput="document.getElementById('dedSS').dataset.overridden='1';onInputChange()">
+<div class="ctrl-sub" id="ssAutoLabel" style="color:#10B981">Auto: 875 ฿/เดือน (ปี 2570)</div>
+</div>
+</div>
+</div>
+
+<!-- ข้อมูลคาดการณ์อนาคต — สำหรับ NPV & Opportunity Cost -->
+<div class="chart-box">
+<h3>ข้อมูลคาดการณ์อนาคต <span style="font-size:12px;color:#64748B;font-weight:400">(สำหรับ NPV & Opportunity Cost)</span></h3>
+<p style="font-size:12px;color:#64748B;margin-bottom:12px">กรอกข้อมูลเพื่อคำนวณโอกาสที่เสียไปถ้าลาออกก่อนเกษียณ</p>
+
+<!-- 💼 เงินเดือน -->
+<div style="margin-bottom:12px">
+  <div style="font-size:13px;font-weight:600;color:#1E293B;margin-bottom:6px">💼 เงินเดือน</div>
+  <div class="ctrl-row" style="gap:12px">
+    <div class="ctrl-group"><label>ขึ้นเงินเดือน (%/ปี)</label><input type="number" id="mdSalaryGrowth" value="1.6" step="0.1" min="0" max="20" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+    <div class="ctrl-group"><label>อายุเกษียณ (ปี)</label><input type="number" id="mdRetireMaxAge" value="58" step="1" min="50" max="65" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+  </div>
+</div>
+
+<!-- 📋 สวัสดิการ -->
+<div style="margin-bottom:12px;padding:12px;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0">
+  <div style="font-size:13px;font-weight:600;color:#1E293B;margin-bottom:6px">📋 สวัสดิการ (บาท/ปี) <span style="font-size:11px;color:#64748B;font-weight:400">— ใส่ตามจริงของบริษัทคุณ</span></div>
+  <div class="ctrl-row" style="gap:12px">
+    <div class="ctrl-group"><label>⛽ ค่าน้ำมันรถ</label><input type="number" id="mdWelfareFuel" value="0" step="1000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="updateWelfareTotal();readProfileFromUI()"></div>
+    <div class="ctrl-group"><label>🏥 ค่ารักษาพยาบาล</label><input type="number" id="mdWelfareMedical" value="0" step="1000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="updateWelfareTotal();readProfileFromUI()"></div>
+  </div>
+  <div class="ctrl-row" style="gap:12px;margin-top:8px">
+    <div class="ctrl-group"><label>🛣️ ค่าทางด่วน</label><input type="number" id="mdWelfareTollway" value="0" step="1000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="updateWelfareTotal();readProfileFromUI()"></div>
+    <div class="ctrl-group"><label>📦 สวัสดิการอื่นๆ</label><input type="number" id="mdWelfareOther" value="0" step="1000" data-format-comma="true" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="updateWelfareTotal();readProfileFromUI()"></div>
+  </div>
+  <div class="ctrl-row" style="gap:12px;margin-top:8px;align-items:center">
+    <div style="font-size:13px;font-weight:600;color:#0369A1" id="mdWelfareTotalLabel">รวม: ฿0/ปี</div>
+    <div class="ctrl-group" style="flex:0 0 auto;min-width:100px"><label>ปรับทุก (ปี)</label><input type="number" id="mdWelfareAdjustYears" value="5" step="1" min="1" max="20" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+    <div class="ctrl-group" style="flex:0 0 auto;min-width:100px"><label>ครั้งละ (%)</label><input type="number" id="mdWelfareAdjustPct" value="2" step="0.5" min="0" max="50" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+  </div>
+</div>
+
+<!-- 📈 เงินเฟ้อ & PVD -->
+<div>
+  <div style="font-size:13px;font-weight:600;color:#1E293B;margin-bottom:6px">📈 เงินเฟ้อ & PVD</div>
+  <div class="ctrl-row" style="gap:12px">
+    <div class="ctrl-group"><label>อัตราเงินเฟ้อ (%/ปี)</label><input type="number" id="mdInflationRate" value="2.5" step="0.1" min="0" max="15" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+    <div class="ctrl-group"><label>ผลตอบแทน PVD (%/ปี)</label><input type="number" id="mdPvdReturn" value="3.5" step="0.5" min="0" max="15" style="padding:8px;border:1px solid #CBD5E1;border-radius:8px;width:100%" onchange="readProfileFromUI()"></div>
+  </div>
+  <div style="font-size:11px;color:#64748B;margin-top:6px">
+    ℹ️ PVD อนาคตคำนวณอัตโนมัติจากเงินเดือน × อัตราสะสม &nbsp;|&nbsp; ℹ️ เงินเฟ้อใช้เป็น discount rate สำหรับ NPV
+  </div>
+</div>
+</div>
+
+<!-- แพคเกจ Early Retirement -->
+<div class="chart-box">
+<h3>แพคเกจ Early Retirement ของบริษัท</h3>
+<p style="font-size:12px;color:#64748B;margin-bottom:12px">กำหนดจำนวนเดือน Early Merit ที่ได้ตามช่วงอายุ (ปรับได้ตามแต่ละบริษัท)</p>
+<table style="max-width:400px">
+<thead><tr><th>อายุไม่เกิน (ปี)</th><th>จำนวนเดือน</th><th></th></tr></thead>
+<tbody id="pkgTiersBody"></tbody>
+</table>
+<button class="btn btn-secondary btn-sm" onclick="addPkgTier()" style="margin-top:10px">+ เพิ่ม Tier</button>
+</div>
+
+<!-- ข้อมูลประกันสังคม -->
+<div class="chart-box">
+<h3>อัตราประกันสังคม (อัพเดตตามราชกิจจานุเบกษา)</h3>
+<table style="max-width:500px">
+<tr><th>ช่วงปี</th><th class="right">เงินสมทบ/เดือน</th><th class="right">เพดานเงินเดือน</th></tr>
+<tr><td>2568</td><td class="right">750 ฿</td><td class="right">15,000 ฿</td></tr>
+<tr style="background:#FEF3C7"><td><strong>2569 — 2571</strong></td><td class="right"><strong>875 ฿</strong></td><td class="right">17,500 ฿</td></tr>
+<tr><td>2572 — 2574</td><td class="right">1,000 ฿</td><td class="right">20,000 ฿</td></tr>
+<tr><td>2575+</td><td class="right">1,150 ฿</td><td class="right">23,000 ฿</td></tr>
+</table>
+<p style="font-size:11px;color:#64748B;margin-top:8px">* Simulator จะคำนวณประกันสังคมอัตโนมัติตามปีที่เลือก (override ได้ในช่อง "ประกันสังคม/เดือน")</p>
+</div>
+
+
+<div class="info-box">
+💡 <strong>Tip:</strong> กด "บันทึก Profile" เพื่อเซฟข้อมูลไว้ใช้ครั้งหน้า — กด "ล้างข้อมูล" เพื่อเริ่มใส่ข้อมูลใหม่ตั้งแต่ต้น
+</div>
+</div>
+
+<!-- ===== TAB 2: SIMULATOR (เดิมคือ Tab 0) ===== -->
+<div class="tab-panel" id="panel-2">
+
+<!-- Control Panel -->
+<div class="ctrl-panel" id="ctrlPanel">
+<h3>Control Panel — ปรับเงื่อนไขได้ทั้งหมด <button class="toggle-btn" onclick="toggleSection('ctrlBody')">ย่อ/ขยาย</button></h3>
+<div id="ctrlBody">
+
+<!-- แถว 1: เดือน/ปี -->
+<div class="ctrl-row">
+<div class="ctrl-group" style="grid-column:span 2">
+<label>เดือนที่ลาออก <span class="info" title="เลือกเดือนที่จะลาออก — ผลกระทบต่อเงินเดือน โบนัส และภาษีจะคำนวณให้ทันที">?</span></label>
+<div class="month-slider-wrap">
+<input type="range" id="retireMonth" min="1" max="12" value="6" oninput="onInputChange()">
+<div class="month-labels">
+<span>ม.ค.</span><span>ก.พ.</span><span>มี.ค.</span><span>เม.ย.</span><span>พ.ค.</span><span>มิ.ย.</span>
+<span>ก.ค.</span><span>ส.ค.</span><span>ก.ย.</span><span>ต.ค.</span><span>พ.ย.</span><span>ธ.ค.</span>
+</div>
+</div>
+<div class="ctrl-val" id="retireMonthLabel">มิ.ย. 2570</div>
+</div>
+<div class="ctrl-group">
+<label>ปีที่ลาออก (พ.ศ.)</label>
+<select id="retireYear" onchange="onInputChange()">
+<!-- สร้าง dynamic จาก buildRetireYearOptions() -->
+</select>
+</div>
+<div class="ctrl-group">
+<label>อายุ ณ วันลาออก</label>
+<div class="ctrl-val" id="ageDisplay">49 ปี</div>
+<div class="ctrl-sub" id="ageWarning"></div>
+</div>
+</div>
+
+<!-- แถว 2: แพคเกจ & สิทธิ -->
+<div class="ctrl-row">
+<div class="ctrl-group">
+<label>แพคเกจ Early Merit <span class="info" title="จำนวนเดือน Early Merit ตามอายุ: ≤49=36, 50-55=18, 56=12, 57=6, 58=0">?</span></label>
+<div class="toggle-row">
+<select id="packageMonths" onchange="onInputChange()">
+<option value="auto" selected>Auto ตามอายุ</option>
+<option value="36">36 เดือน</option>
+<option value="18">18 เดือน</option>
+<option value="12">12 เดือน</option>
+<option value="6">6 เดือน</option>
+<option value="0">0 เดือน</option>
+</select>
+</div>
+<div class="ctrl-sub" id="pkgDisplay">36 เดือน (Auto)</div>
+</div>
+<div class="ctrl-group">
+<label>ยกเว้นภาษี 600K <span class="info" title="ได้เฉพาะกรณีถูก 'เลิกจ้าง' ตามกฎหมาย — ตรวจสอบกับ HR">?</span></label>
+<div class="toggle-row">
+<label class="toggle"><input type="checkbox" id="exempt600k" checked onchange="onInputChange()"><span class="slider"></span></label>
+<span id="exempt600kLabel">ได้ (ประหยัด ~฿105K)</span>
+</div>
+</div>
+<div class="ctrl-group">
+<label>การจัดการ PVD <span class="info" title="PVD ~฿7.27M: โอนไป RMF = ปลอดภาษี / ถอนออก = ต้องเสียภาษี (อายุ<55)">?</span></label>
+<select id="pvdHandling" onchange="onInputChange()">
+<option value="rmf" selected>โอนไป RMF for PVD (ปลอดภาษี)</option>
+<option value="withdraw">ถอนออก (เสียภาษี)</option>
+</select>
+</div>
+</div>
+
+<!-- เงินเดือน ณ ปีลาออก (auto-calculated จาก Tab 1) -->
+<div class="ctrl-row">
+<div class="ctrl-group">
+<label>เงินเดือน ณ ปีลาออก (฿) <span class="info" title="คำนวณอัตโนมัติจากเงินเดือนปัจจุบัน × อัตราขึ้นเงินเดือน/ปี ตั้งค่าได้ที่ Tab ข้อมูลส่วนตัว">?</span></label>
+<input type="number" id="baseSalary" value="0" readonly style="opacity:0.7;cursor:not-allowed" data-format-comma="true">
+<div class="ctrl-sub" style="color:#10B981">🔗 Auto: คำนวณจากเงินเดือน × ขึ้นเงินเดือน/ปี (ตั้งค่าที่ Tab ข้อมูลส่วนตัว)</div>
+</div>
+</div>
+
+<!-- ปุ่ม -->
+<div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
+<button class="btn btn-primary" onclick="pinScenario()">📌 Pin Scenario (0/3)</button>
+<button class="btn btn-primary" style="background:#10B981" onclick="saveProfile()">💾 บันทึก</button>
+<button class="btn btn-secondary" onclick="resetDefaults()">🧹 ล้างข้อมูล</button>
+</div>
+
+</div><!-- /ctrlBody -->
+</div><!-- /ctrl-panel -->
+
+<!-- Pin Bar (ซ่อนเมื่อไม่มี pin) -->
+<div class="pin-bar" id="pinBar" style="display:none">
+<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+<span class="pin-label">Pinned:</span>
+<span id="pinChips"></span>
+</div>
+<button onclick="clearAllPins()">ลบทั้งหมด</button>
+</div>
+
+<!-- Alert อายุ 49 -->
+<div class="alert-box" id="ageAlert" style="display:none">
+<div class="alert-icon">&#9888;</div>
+<div class="alert-content" id="ageAlertContent"></div>
+</div>
+
+<!-- Dashboard Cards -->
+<div class="cards" id="dashCards">
+<div class="card card-blue" id="cardTotalIncome"><div class="label">เงินรวมทั้งหมด (ก่อนภาษี)</div><div class="val">-</div><div class="sub">เงินเดือน + เงินก้อน</div><div class="delta-group" id="deltaGroupTotalIncome"></div></div>
+<div class="card card-red" id="cardTotalTax"><div class="label">ภาษีรวม</div><div class="val">-</div><div class="sub">เงินเดือน + เงินก้อน</div><div class="delta-group" id="deltaGroupTotalTax"></div></div>
+<div class="card card-green" id="cardNetIncome"><div class="label">เงินสุทธิ (หลังภาษี)</div><div class="val">-</div><div class="sub">ได้รับจริง</div><div class="delta-group" id="deltaGroupNetIncome"></div></div>
+<div class="card card-amber" id="cardEffRate"><div class="label">Effective Tax Rate</div><div class="val">-</div><div class="sub">ภาษีจริง / เงินรวม</div><div class="delta-group" id="deltaGroupEffRate"></div></div>
+<div class="card card-purple" id="cardEarlyMerit"><div class="label">Early Merit</div><div class="val">-</div><div class="sub">แพคเกจ x เงินเดือน</div><div class="delta-group" id="deltaGroupEarlyMerit"></div></div>
+<div class="card card-gray" id="cardSeverance"><div class="label">ชดเชยตามกฎหมาย</div><div class="val">-</div><div class="sub">400 วัน x เงินเดือน/30</div><div class="delta-group" id="deltaGroupSeverance"></div></div>
+</div>
+
+<!-- ตารางเปรียบเทียบ Scenarios (แสดงเมื่อมี pin) -->
+<div class="chart-box" id="compareTableBox" style="display:none">
+<h3>เปรียบเทียบ Scenarios <span style="font-size:12px;color:#64748B;font-weight:400">(เปรียบเทียบ Pin A/B/C)</span></h3>
+<div style="overflow-x:auto"><table id="compareTable"></table></div>
+</div>
+
+<!-- กราฟ 2 อัน -->
+<div class="grid2">
+<div class="chart-box"><h3>องค์ประกอบรายได้<span class="chart-info">ℹ️<span class="chart-info-popup">แสดงสัดส่วนรายได้ทั้งหมดที่ได้รับ: เงินเดือนสะสม โบนัส Early Merit เงินชดเชย — ดูว่าเงินก้อนไหนเยอะสุด</span></span></h3><canvas id="incomeChart" height="280"></canvas></div>
+<div class="chart-box"><h3>ภาษี — Waterfall<span class="chart-info">ℹ️<span class="chart-info-popup">แสดงขั้นตอนคำนวณภาษี: เงินรวม → หักค่าลดหย่อน → เหลือเงินได้สุทธิ → คำนวณภาษี → เหลือเงินสุทธิที่ได้รับจริง</span></span></h3><canvas id="taxWaterfallChart" height="280"></canvas></div>
+</div>
+
+<!-- ตารางสรุปย่อ -->
+<div class="chart-box" id="summaryTableBox">
+<h3>สรุปการคำนวณ</h3>
+<table id="summaryTable"></table>
+</div>
+
+</div><!-- /panel-0 -->
+
+<!-- ===== TAB 3: รายละเอียดภาษี ===== -->
+<div class="tab-panel" id="panel-3">
+<h3 style="margin-bottom:16px;font-size:18px">รายละเอียดการคำนวณภาษี</h3>
+<div class="grid2">
+<div class="chart-box"><h3>ภาษีเงินก้อน (แยกยื่น) — ขั้นตอนคำนวณ</h3><table id="lumpTaxTable"></table></div>
+<div class="chart-box"><h3>ภาษีเงินเดือน — ขั้นตอนคำนวณ</h3><table id="salaryTaxTable"></table></div>
+</div>
+<div class="grid2">
+<div class="chart-box"><h3>ภาษีขั้นบันได — เงินก้อน<span class="chart-info">ℹ️<span class="chart-info-popup">แสดงภาษีขั้นบันไดของเงินก้อน (แยกยื่น) ตามอัตรา 0-35% — แต่ละแท่งคือภาษีที่ต้องจ่ายในช่วงเงินได้นั้น</span></span></h3><canvas id="lumpStepChart" height="280"></canvas></div>
+<div class="chart-box"><h3>ภาษีขั้นบันได — เงินเดือน<span class="chart-info">ℹ️<span class="chart-info-popup">แสดงภาษีขั้นบันไดของเงินเดือน+โบนัส ตามอัตรา 0-35% — เปรียบเทียบกับเงินก้อนว่าภาษีต่างกันเท่าไร</span></span></h3><canvas id="salaryStepChart" height="280"></canvas></div>
+</div>
+</div>
+
+<!-- ===== TAB 4: ภาพรวมทุกอายุ ===== -->
+<div class="tab-panel" id="panel-4">
+<h3 style="margin-bottom:16px;font-size:18px">ภาพรวม Early Retirement ทุกช่วงอายุ (47-58)</h3>
+<div class="grid2">
+<div class="chart-box"><h3>หน้าผาแพคเกจ — Early Merit (เดือน)<span class="chart-info">ℹ️<span class="chart-info-popup">"หน้าผาแพคเกจ" — จำนวนเดือน Early Merit ลดลงตามอายุ เช่น 36→18→12→6→0 เดือน ยิ่งอายุมากยิ่งได้น้อย</span></span></h3><canvas id="pkgCliffChart" height="280"></canvas></div>
+<div class="chart-box"><div style="display:flex;justify-content:space-between;align-items:center"><h3>Total Income ตามอายุ<span class="chart-info">ℹ️<span class="chart-info-popup">เงินรวมทั้งหมดที่จะได้ถ้าลาออกแต่ละอายุ แยกเป็น Early Merit, เงินชดเชย, PVD, สวัสดิการสะสม — ดูว่าปีไหนได้เยอะสุด</span></span></h3><button class="btn" id="toggleGrossNet2" onclick="toggleGrossNet('tab2')" style="font-size:12px;padding:4px 14px;background:#E2E8F0;color:#475569;border-radius:20px;border:none;cursor:pointer;white-space:nowrap">💰 Gross (ก่อนภาษี)</button></div><canvas id="totalWealthChart" height="280"></canvas></div>
+</div>
+<div class="chart-box"><h3>Master Data — ทุกอายุ 47-58</h3><div style="overflow-x:auto"><table id="masterTable"></table></div></div>
+<div class="chart-box"><h3>Year-over-Year: ทำงานเพิ่ม 1 ปี ได้/เสียเท่าไร?<span class="chart-info">ℹ️<span class="chart-info-popup">เปรียบเทียบ: ทำงานเพิ่มอีก 1 ปี ได้เงินเพิ่มขึ้นหรือลดลงเท่าไร? สีเขียว=ได้เพิ่ม สีแดง=ได้ลด — ช่วยตัดสินใจว่าควรรอหรือลาออกเลย</span></span></h3><canvas id="yoyChart" height="250"></canvas></div>
+</div>
+
+<!-- ===== TAB 5: Heatmap ===== -->
+<div class="tab-panel" id="panel-5">
+<h3 style="margin-bottom:16px;font-size:18px">Heatmap ภาษีรวม — 12 อายุ × 12 เดือน = 144 Scenarios</h3>
+<p style="color:#64748B;font-size:12px;margin-bottom:16px">คลิกช่องใดก็ได้เพื่อโหลด scenario นั้นใน Simulator</p>
+<div class="cards" id="heatmapCards"></div>
+<div class="chart-box"><div style="overflow-x:auto"><table class="heatmap-table" id="heatmapTable"></table></div>
+<div style="margin-top:8px;font-size:11px;color:#64748B">สีเขียว = ภาษีต่ำ | สีเหลือง = ปานกลาง | สีแดง = สูง | คลิกเพื่อโหลด scenario</div>
+</div>
+</div>
+
+<!-- ===== TAB 6: กลยุทธ์ & NPV ===== -->
+<div class="tab-panel" id="panel-6">
+<h3 style="margin-bottom:16px;font-size:18px">กลยุทธ์ & NPV Analysis</h3>
+<div id="bestStrategySection"></div>
+<div class="chart-box"><div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px"><h3 style="margin:0">รายได้รวมแยกส่วน — ทุกอายุ <span style="font-size:12px;color:#64748B;font-weight:400">(ไดนามิกตาม input)</span><span class="chart-info">ℹ️<span class="chart-info-popup">แท่ง = รายได้แยกส่วนแต่ละอายุ (เงินก้อน, PVD, สวัสดิการ) เส้นสีเหลือง = รายได้สะสมรวม (เงินเดือน+โบนัส+สวัสดิการ+Early+PVD) ดูภาพรวมระยะยาว</span></span></h3><button class="btn" id="toggleGrossNet4" onclick="toggleGrossNet('tab4')" style="font-size:12px;padding:4px 14px;background:#E2E8F0;color:#475569;border-radius:20px;border:none;cursor:pointer;white-space:nowrap">💰 Gross (ก่อนภาษี)</button></div><canvas id="incomeBreakdownChart" height="200"></canvas></div>
+<div class="grid2">
+<div class="chart-box"><h3>NPV เปรียบเทียบ <span style="font-size:12px;color:#64748B;font-weight:400">(หลังหัก Opportunity Cost)</span><span class="chart-info">ℹ️<span class="chart-info-popup">มูลค่าปัจจุบันสุทธิ (NPV) = เงินที่ได้ หลังหัก "ต้นทุนโอกาส" (เงินเดือน+โบนัสที่เสียไปถ้าลาออกเร็ว) — แท่งสูง=คุ้มกว่า แท่งติดลบ=ยังไม่คุ้ม</span></span></h3><canvas id="npvChart" height="280"></canvas><div id="ocBreakdownCard" style="display:none"></div></div>
+<div class="chart-box"><h3 id="breakevenTitle">Break-even: หน้าผาแพคเกจ<span class="chart-info">ℹ️<span class="chart-info-popup" id="breakevenTooltip">จุดที่แพคเกจลดลง — เปรียบเทียบรายได้สะสมระหว่างออกก่อน/หลังจุดหน้าผา</span></span></h3><canvas id="breakevenChart" height="280"></canvas></div>
+</div>
+<div class="chart-box"><h3>Decision Matrix</h3><div style="overflow-x:auto"><table id="decisionTable"></table></div></div>
+</div>
+
+<!-- ===== TAB 7: กฎหมาย & Checklist ===== -->
+<div class="tab-panel" id="panel-7">
+<h3 style="margin-bottom:16px;font-size:18px">กฎหมายภาษีที่เกี่ยวข้อง & Checklist</h3>
+<div id="taxLawSection"></div>
+<div id="timelineSection"></div>
+<div id="checklistSection"></div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Welcome Modal (แสดงครั้งแรกเท่านั้น) -->
+<div class="modal-overlay welcome-overlay" id="welcomeOverlay">
+<div class="welcome-modal">
+  <div style="font-size:48px;margin-bottom:16px">📊</div>
+  <h2 style="font-size:24px;font-weight:800;color:#0F172A;margin-bottom:8px">
+    ยินดีต้อนรับสู่<br>Early Retire & Tax Simulator
+  </h2>
+  <p style="color:#64748B;font-size:14px;line-height:1.8;margin-bottom:24px">
+    เครื่องมือวิเคราะห์ภาษีและวางแผน Early Retirement<br>
+    คำนวณเงินก้อน ภาษี เงินสุทธิ แบบ Real-time<br>
+    ปรับเงื่อนไขได้ทุกอย่าง เปรียบเทียบ Scenarios ได้
+  </p>
+  <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+    <button class="welcome-btn" style="background:#F59E0B;color:#0F172A" onclick="closeWelcome(1)">
+      เริ่มใช้งาน →
+    </button>
+    <button class="welcome-btn" style="background:#E2E8F0;color:#475569" onclick="closeWelcome(0)">
+      📖 ดูวิธีใช้ก่อน
+    </button>
+  </div>
+  <label style="display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;font-size:12px;color:#94A3B8;cursor:pointer">
+    <input type="checkbox" id="welcomeNoShow" checked> ไม่ต้องแสดงอีก
+  </label>
+</div>
+</div>
+
+<!-- About Modal -->
+<div class="modal-overlay" id="aboutOverlay" onclick="if(event.target===this)hideAbout()">
+<div class="about-modal">
+  <button class="modal-close" onclick="hideAbout()">&times;</button>
+  <h2 style="font-size:20px;font-weight:800;margin-bottom:16px;color:#0F172A">ℹ️ Early Retire & Tax Simulator</h2>
+  <div style="font-size:13px;line-height:2;color:#475569">
+    <p><strong>Version:</strong> V.01_2026</p>
+    <p><strong>พัฒนาโดย:</strong> Community Contributors</p>
+    <p style="margin-top:8px"><strong>เกี่ยวกับ:</strong> เครื่องมือวิเคราะห์ภาษีและวางแผน Early Retirement สำหรับพนักงานบริษัท — คำนวณเงินก้อน ภาษี เงินสุทธิ แบบ Real-time ปรับเงื่อนไขได้ทั้งหมด</p>
+    <p style="margin-top:8px"><strong>เทคโนโลยี:</strong> HTML/CSS/JS • Chart.js • jsPDF • html2canvas</p>
+    <p style="padding:12px;background:#F8FAFC;border-radius:10px;border:1px solid #E2E8F0"><strong>GitHub:</strong> <a href="https://github.com" style="color:#2563EB">Source Code</a></p>
+  </div>
+  <div style="margin-top:20px;padding-top:16px;border-top:1px solid #E5E7EB;font-size:11px;color:#94A3B8;text-align:center">
+    &copy; 2026 Ekaluk Hirunsirisawad. All rights reserved.
+  </div>
+</div>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body></html>
