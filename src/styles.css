@@ -1,6 +1,11 @@
 /* Early Retire & Tax Simulator — CSS */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F0F4F8;color:#1E293B;font-size:14px}
+
+/* === CSS Variables (Light / Dark Mode) === */
+:root{--bg-page:#F0F4F8;--bg-card:#ffffff;--bg-section:#F1F5F9;--text-main:#1E293B;--text-sub:#64748B;--text-muted:#94A3B8;--border:#E2E8F0}
+body.dark{--bg-page:#0F172A;--bg-card:#1E293B;--bg-section:#0a1628;--text-main:#E2E8F0;--text-sub:#94A3B8;--text-muted:#64748B;--border:#334155}
+
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg-page);color:var(--text-main);font-size:14px}
 
 /* === Header === */
 .header{background:linear-gradient(135deg,#0F172A 0%,#1E3A5F 100%);color:#fff;padding:20px 32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
@@ -16,9 +21,9 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F0F4F
 
 /* === การ์ด === */
 .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px}
-.card{background:#fff;border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-.card .label{font-size:12px;color:#64748B;margin-bottom:4px} .card .val{font-size:22px;font-weight:800;color:#0F172A}
-.card .sub{font-size:11px;color:#94A3B8;margin-top:2px}
+.card{background:var(--bg-card);border-radius:12px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.card .label{font-size:12px;color:var(--text-sub);margin-bottom:4px} .card .val{font-size:22px;font-weight:800;color:var(--text-main)}
+.card .sub{font-size:11px;color:var(--text-muted);margin-top:2px}
 .card .delta{font-size:12px;font-weight:700;margin-top:4px}
 .delta-up{color:#10B981} .delta-down{color:#EF4444}
 .card-green{border-left:4px solid #10B981} .card-red{border-left:4px solid #EF4444}
@@ -61,13 +66,13 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:#F0F4F
 .month-marker.bonus{background:#F59E0B;color:#fff}
 
 /* === กราฟ/ตาราง === */
-.chart-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;min-width:0;overflow-x:auto}
-.chart-box h3{font-size:15px;font-weight:700;margin-bottom:12px;color:#1E293B}
+.chart-box{background:var(--bg-card);border-radius:12px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.08);margin-bottom:20px;min-width:0;overflow-x:auto}
+.chart-box h3{font-size:15px;font-weight:700;margin-bottom:12px;color:var(--text-main)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px}.grid2>*{min-width:0}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{background:#F1F5F9;padding:8px 6px;text-align:left;font-weight:700;color:#475569;font-size:12px}
-td{padding:8px 6px;border-bottom:1px solid #E5E7EB}
+th{background:var(--bg-section);padding:8px 6px;text-align:left;font-weight:700;color:var(--text-sub);font-size:12px}
+td{padding:8px 6px;border-bottom:1px solid var(--border)}
 .right{text-align:right} .center{text-align:center} .bold{font-weight:700}
 
 /* Heatmap */
@@ -113,7 +118,7 @@ td{padding:8px 6px;border-bottom:1px solid #E5E7EB}
 .btn-sm{padding:4px 10px;font-size:11px}
 
 /* Decision Card */
-.decision-card{background:#fff;border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center;border:2px solid transparent;transition:all .2s}
+.decision-card{background:var(--bg-card);border-radius:12px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,.08);text-align:center;border:2px solid transparent;transition:all .2s}
 .decision-card.best{border-color:#10B981;background:#F0FDF4}
 .decision-card .rank{font-size:28px;font-weight:900;margin-bottom:4px}
 
@@ -150,7 +155,28 @@ td{padding:8px 6px;border-bottom:1px solid #E5E7EB}
 /* ปุ่ม Zoom ปรับขนาดตัวหนังสือ */
 .zoom-btn{background:#334155;color:#E2E8F0;border:none;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700}
 .zoom-btn:hover{background:#475569}
-@media print{body{zoom:1 !important}.main-tabs,.ctrl-panel,.pin-bar,.no-print{display:none !important}.tab-panel{display:block !important;page-break-after:always}}
+/* === Sticky Nav (Header + Tabs) === */
+.sticky-nav{position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(0,0,0,.35)}
+
+/* === Dark Mode overrides (inline-styled elements, modals, inputs) === */
+body.dark .about-modal,body.dark .welcome-modal{background:#1E293B!important;color:#E2E8F0!important}
+body.dark .about-modal h2{color:#E2E8F0!important}
+body.dark .welcome-modal h2{color:#E2E8F0!important}
+body.dark .welcome-modal p,body.dark .about-modal p{color:#94A3B8!important}
+body.dark .modal-close{color:#94A3B8!important}
+body.dark .chart-box input:not([type=checkbox]):not([type=range]),body.dark .chart-box select{background:#0F172A!important;color:#E2E8F0!important;border-color:#334155!important}
+body.dark .decision-card.best{background:#0d2a1a!important}
+body.dark .disclaimer{background:#1a1f2e!important;border-color:#334155!important;color:#94A3B8!important}
+body.dark .info-box{background:#0c1a3a!important;border-color:#334155!important;color:#93C5FD!important}
+body.dark .warn-box{background:#2a1a00!important;border-color:#854d0e!important;color:#fcd34d!important}
+body.dark .alert-box{background:#2a0a0a!important;border-color:#7f1d1d!important}
+body.dark .alert-content{color:#fca5a5!important}
+body.dark .chart-info{background:#334155!important;color:#94A3B8!important}
+body.dark .chart-info-popup{background:#0F172A!important}
+body.dark #snapshotList > div > div{background:#1a2744!important;border-color:#334155!important;color:#E2E8F0!important}
+body.dark table tr:hover td{background:#1e3a5f!important}
+
+@media print{body{zoom:1 !important}.sticky-nav,.ctrl-panel,.pin-bar,.no-print{display:none !important}.tab-panel{display:block !important;page-break-after:always}}
 /* Tooltip อธิบายกราฟ — ℹ️ icon + popup เมื่อ hover */
 .chart-info{display:inline-block;width:20px;height:20px;border-radius:50%;background:#E2E8F0;color:#475569;text-align:center;font-size:11px;line-height:20px;cursor:help;position:relative;margin-left:6px;vertical-align:middle}
 .chart-info:hover .chart-info-popup{display:block}

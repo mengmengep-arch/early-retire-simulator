@@ -11,6 +11,11 @@ export function initTab3() {
   const ht = document.getElementById('heatmapTable');
   let minTax = Infinity, maxTax = 0, minInfo = '', maxInfo = '';
 
+  // counters สำหรับ summary
+  const colorCounts = { green: 0, lgreen: 0, yellow: 0, orange: 0, red: 0, dred: 0 };
+  const taxSumByMonth = new Array(13).fill(0);
+  const taxCountByMonth = new Array(13).fill(0);
+
   // หา pinned (year, month) สำหรับ highlight cells
   const pinnedCells = {}; // key = "year-month" → pinIndex
   PINNED.forEach((p, i) => {
@@ -46,6 +51,17 @@ export function initTab3() {
       if (totalTax > maxTax) { maxTax = totalTax; maxInfo = 'อายุ ' + d.age + ' ' + CONFIG.monthNames[m - 1]; }
 
       const cls = totalTax < 200000 ? 'ht-green' : totalTax < 500000 ? 'ht-lgreen' : totalTax < 1000000 ? 'ht-yellow' : totalTax < 1500000 ? 'ht-orange' : totalTax < 2000000 ? 'ht-red' : 'ht-dred';
+
+      // นับสี + สะสม tax ตามเดือน
+      if (cls === 'ht-green') colorCounts.green++;
+      else if (cls === 'ht-lgreen') colorCounts.lgreen++;
+      else if (cls === 'ht-yellow') colorCounts.yellow++;
+      else if (cls === 'ht-orange') colorCounts.orange++;
+      else if (cls === 'ht-red') colorCounts.red++;
+      else colorCounts.dred++;
+      taxSumByMonth[m] += totalTax;
+      taxCountByMonth[m]++;
+
       // Highlight pinned cells ด้วย outline + badge
       const pinKey = d.year + '-' + m;
       const pinIdx = pinnedCells[pinKey];
@@ -79,6 +95,102 @@ export function initTab3() {
     </div>`;
   });
   hc.innerHTML = cardsHtml;
+
+  // === Heatmap Summary (Top3 + Color Stats + Best Month) ===
+  const summaryEl = document.getElementById('heatmapSummary');
+  if (!summaryEl) return;
+
+  // Top 3 อายุแนะนำ จาก Decision Scores
+  const scores = CALC.calcDecisionScores(activeProfile.masterData);
+  const top3 = [...scores].sort((a, b) => b.score - a.score).slice(0, 3);
+  const medals = ['🥇', '🥈', '🥉'];
+  const medalColors = ['#F59E0B', '#94A3B8', '#D97706'];
+
+  // หาเดือนที่ดีที่สุด (avg tax ต่ำสุด)
+  let bestMonth = 1, bestAvg = Infinity;
+  for (let m = 1; m <= 12; m++) {
+    if (taxCountByMonth[m] > 0) {
+      const avg = taxSumByMonth[m] / taxCountByMonth[m];
+      if (avg < bestAvg) { bestAvg = avg; bestMonth = m; }
+    }
+  }
+
+  const totalCells = Object.values(colorCounts).reduce((s, v) => s + v, 0);
+
+  let html = '<div class="chart-box" style="margin-bottom:20px"><h3>🔍 สรุปวิเคราะห์ Heatmap</h3>';
+
+  // --- Top 3 ---
+  if (top3.length > 0) {
+    html += '<div style="margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:10px">🏆 Top 3 อายุแนะนำ <span style="font-size:11px;font-weight:400;color:#64748B">(คะแนนรวม 6 ปัจจัย: ความมั่งคั่ง, แพคเกจ, ภาษี, PVD, ประกันสังคม, เวลา)</span></div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px">';
+    top3.forEach((s, i) => {
+      const pct = Math.min(Math.round(s.score), 100);
+      html += '<div style="background:#F8FAFC;border-radius:10px;padding:14px;border:2px solid ' + medalColors[i] + '">' +
+        '<div style="font-size:20px;font-weight:900;color:' + medalColors[i] + '">' + medals[i] + ' อายุ ' + s.age + '</div>' +
+        '<div style="font-size:11px;color:#64748B;margin-bottom:6px">พ.ศ. ' + s.year + ' | ' + s.pkg + ' เดือน</div>' +
+        '<div style="font-size:12px;font-weight:700;color:#1E293B">คะแนน: ' + s.score.toFixed(1) + '/100</div>' +
+        '<div class="score-bar" style="margin:4px 0 6px"><div class="score-fill" style="width:' + pct + '%;background:' + medalColors[i] + '"></div></div>' +
+        '<div style="font-size:11px;color:#059669">💰 Net: ฿' + fmt(s.totalIncome) + '</div>' +
+        '<div style="font-size:11px;color:#DC2626">🧾 ภาษี: ' + (s.taxRate * 100).toFixed(1) + '%</div>' +
+        (s.pros.slice(0, 2).map(p => '<div style="font-size:10px;color:#64748B;margin-top:3px">✓ ' + p + '</div>').join('')) +
+        '</div>';
+    });
+    html += '</div></div>';
+  }
+
+  // --- Color Distribution + Best Month (2 columns) ---
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">';
+
+  // Color distribution
+  const colorDefs = [
+    { key: 'green',  label: '🟢 ต่ำมาก (<200K)',     textColor: '#065F46' },
+    { key: 'lgreen', label: '🟢 ต่ำ (<500K)',          textColor: '#065F46' },
+    { key: 'yellow', label: '🟡 ปานกลาง (<1M)',        textColor: '#92400E' },
+    { key: 'orange', label: '🟠 ค่อนข้างสูง (<1.5M)',  textColor: '#9A3412' },
+    { key: 'red',    label: '🔴 สูง (<2M)',             textColor: '#991B1B' },
+    { key: 'dred',   label: '🔴 สูงมาก (≥2M)',         textColor: '#7F1D1D' },
+  ];
+  html += '<div><div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:8px">🎨 การกระจายตัว 144 Scenarios</div>';
+  colorDefs.forEach(cd => {
+    const cnt = colorCounts[cd.key];
+    if (cnt === 0) return;
+    const pct = Math.round(cnt / totalCells * 100);
+    html += '<div style="margin-bottom:5px">' +
+      '<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">' +
+      '<span style="color:' + cd.textColor + ';font-weight:600">' + cd.label + '</span>' +
+      '<span style="color:#64748B"><strong>' + cnt + '</strong> (' + pct + '%)</span></div>' +
+      '<div style="height:5px;background:#E2E8F0;border-radius:3px">' +
+      '<div style="height:100%;width:' + pct + '%;background:' + cd.textColor + ';border-radius:3px"></div></div></div>';
+  });
+  html += '</div>';
+
+  // Best Month
+  const monthAvgs = [];
+  for (let m = 1; m <= 12; m++) {
+    if (taxCountByMonth[m] > 0) monthAvgs.push({ m, avg: taxSumByMonth[m] / taxCountByMonth[m] });
+  }
+  monthAvgs.sort((a, b) => a.avg - b.avg);
+  const monthMaxAvg = Math.max(...monthAvgs.map(x => x.avg));
+
+  html += '<div><div style="font-size:13px;font-weight:700;color:#1E293B;margin-bottom:8px">📅 เดือนแนะนำโดยเฉลี่ย</div>';
+  html += '<div style="background:#F0FDF4;border-radius:10px;padding:12px;border:2px solid #10B981;text-align:center;margin-bottom:10px">';
+  html += '<div style="font-size:26px;font-weight:900;color:#059669">' + CONFIG.monthNames[bestMonth - 1] + '</div>';
+  html += '<div style="font-size:11px;color:#64748B;margin-top:2px">avg ภาษีต่ำสุด: ฿' + fmt(Math.round(bestAvg)) + '</div>';
+  html += '</div>';
+  monthAvgs.forEach((ma, rank) => {
+    const barPct = Math.round(ma.avg / monthMaxAvg * 100);
+    const barColor = rank === 0 ? '#10B981' : rank <= 2 ? '#3B82F6' : '#CBD5E1';
+    html += '<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:11px">' +
+      '<span style="min-width:30px;color:#64748B">' + CONFIG.monthNames[ma.m - 1] + '</span>' +
+      '<div style="flex:1;height:5px;background:#E2E8F0;border-radius:3px">' +
+      '<div style="height:100%;width:' + barPct + '%;background:' + barColor + ';border-radius:3px"></div></div>' +
+      '<span style="min-width:44px;text-align:right;color:#64748B">฿' + fmt(Math.round(ma.avg / 1000)) + 'K</span></div>';
+  });
+  html += '</div>';
+
+  html += '</div>'; // end grid
+  html += '</div>'; // end chart-box
+  summaryEl.innerHTML = html;
 }
 
 export function loadFromHeatmap(year, month) {
