@@ -65,6 +65,9 @@ export function readState() {
   const ssAuto = _CALC.getSocialSecurity(retireYear);
   // ถ้ายังเป็นค่า auto (ไม่ได้แก้เอง) → อัพเดตตาม
   if (!ssEl.dataset.overridden) ssEl.value = ssAuto;
+  // อัพเดต label แสดงค่า auto ประกันสังคม + ปี
+  const ssAutoLabel = document.getElementById('ssAutoLabel');
+  if (ssAutoLabel) ssAutoLabel.textContent = 'Auto: ' + ssAuto + ' ฿/เดือน (ปี ' + retireYear + ')';
 
   // Auto-calculate baseSalary ตามปีลาออก (เงินเดือนปัจจุบัน × อัตราขึ้นเงินเดือน)
   const yearsFromNow = retireYear - CURRENT_YEAR_BE;
@@ -141,6 +144,9 @@ export function destroyAllCharts() {
   showNet.tab2 = false; showNet.tab4 = false;
   const btn2 = document.getElementById('toggleGrossNet2');
   const btn4 = document.getElementById('toggleGrossNet4');
-  if (btn2) { btn2.textContent = '💰 Gross (ก่อนภาษี)'; btn2.className = 'btn'; btn2.style.background = '#E2E8F0'; btn2.style.color = '#475569'; }
-  if (btn4) { btn4.textContent = '💰 Gross (ก่อนภาษี)'; btn4.className = 'btn'; btn4.style.background = '#E2E8F0'; btn4.style.color = '#475569'; }
+  const _isDark = document.body.classList.contains('dark');
+  const _btnBg = _isDark ? '#334155' : '#E2E8F0';
+  const _btnColor = _isDark ? '#CBD5E1' : '#475569';
+  if (btn2) { btn2.textContent = '💰 Gross (ก่อนภาษี)'; btn2.className = 'btn'; btn2.style.background = _btnBg; btn2.style.color = _btnColor; }
+  if (btn4) { btn4.textContent = '💰 Gross (ก่อนภาษี)'; btn4.className = 'btn'; btn4.style.background = _btnBg; btn4.style.color = _btnColor; }
 }
