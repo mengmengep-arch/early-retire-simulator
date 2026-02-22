@@ -10,6 +10,17 @@ export function updateCharts(r) {
   updateTaxWaterfallChart(r);
 }
 
+// helper สีตาม theme (ใช้ใน function นี้)
+function _themeColors() {
+  const isDark = document.body.classList.contains('dark');
+  return {
+    grid: isDark ? '#334155' : '#E2E8F0',
+    label: isDark ? '#E2E8F0' : '#1E293B',
+    labelBlue: isDark ? '#93C5FD' : '#1E40AF',
+    labelRed: isDark ? '#fca5a5' : '#991B1B',
+  };
+}
+
 export function updateIncomeChart(r) {
   const categories = ['เงินเดือน', 'โบนัส', 'Early Merit', 'ชดเชยกฎหมาย'];
   const currentData = [r.salaryIncome.salaryTotal, r.salaryIncome.bonusMidAmt + r.salaryIncome.bonusEndAmt, r.earlyMerit, r.severanceAmt];
@@ -44,13 +55,13 @@ export function updateIncomeChart(r) {
           datalabels: {
             display: function(ctx) { return ctx.dataset.data[ctx.dataIndex] > 0; },
             anchor: 'end', align: 'top', offset: 2,
-            color: '#1E293B', font: { weight: 'bold', size: 10 },
+            color: function() { return _themeColors().label; }, font: { weight: 'bold', size: 10 },
             formatter: function(v) { return v >= 1000000 ? '฿' + (v/1000000).toFixed(1) + 'M' : '฿' + fmt(v); }
           }
         },
         scales: {
           x: { grid: { display: false } },
-          y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } }
+          y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _themeColors().grid; } } }
         }
       }
     });
@@ -161,9 +172,10 @@ export function updateTaxWaterfallChart(r) {
         display: function(ctx) { return rawData[ctx.dataIndex] !== 0; },
         anchor: 'end', align: 'end', offset: 4,
         color: function(ctx) {
+          const tc = _themeColors();
           const i = ctx.dataIndex;
-          if (cmpSepIdx > 0 && i > cmpSepIdx) return '#1E293B'; // สีเข้มสำหรับ comparison
-          return i >= 6 ? '#991B1B' : '#1E40AF';
+          if (cmpSepIdx > 0 && i > cmpSepIdx) return tc.label;
+          return i >= 6 ? tc.labelRed : tc.labelBlue;
         },
         font: { weight: 'bold', size: 11 },
         formatter: function(value, ctx) {
@@ -172,7 +184,7 @@ export function updateTaxWaterfallChart(r) {
         }
       }
     }, scales: {
-      x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' }, max: Math.max(...chartData) * 1.25 },
+      x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _themeColors().grid; } }, max: Math.max(...chartData) * 1.25 },
       y: { grid: { display: false }, ticks: { font: function(ctx) {
         const isSep = ctx.index === sepIdx || ctx.index === cmpSepIdx;
         return { weight: isSep ? 'bold' : 'normal', size: isSep ? 10 : 12 };

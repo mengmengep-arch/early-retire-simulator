@@ -463,8 +463,13 @@ export function renderSnapshots() {
   const container = document.getElementById('snapshotList');
   if (!container) return;
   const snaps = JSON.parse(localStorage.getItem('earlyRetireSnapshots') || '[]');
+  const isDark = document.body.classList.contains('dark');
+  const textMain = isDark ? '#E2E8F0' : '#1E293B';
+  const textSub  = isDark ? '#94A3B8' : '#64748B';
+  const itemBg   = isDark ? '#1e293b' : '#F8FAFC';
+  const itemBorder = isDark ? '#334155' : '#E2E8F0';
   if (!snaps.length) {
-    container.innerHTML = '<p style="color:#64748B;font-size:12px">ยังไม่มี snapshot — กดปุ่ม 📸 เพื่อบันทึกผลลัพธ์ปัจจุบัน</p>';
+    container.innerHTML = '<p style="color:' + textSub + ';font-size:12px">ยังไม่มี snapshot — กดปุ่ม 📸 เพื่อบันทึกผลลัพธ์ปัจจุบัน</p>';
     return;
   }
   let html = '<div style="display:flex;flex-direction:column;gap:8px">';
@@ -473,10 +478,10 @@ export function renderSnapshots() {
     const dateStr = d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' }) +
                     ' ' + d.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
     const npvColor = s.summary.npv >= 0 ? '#059669' : '#DC2626';
-    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:#F8FAFC;border-radius:8px;border:1px solid #E2E8F0;flex-wrap:wrap;gap:6px">' +
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:' + itemBg + ';border-radius:8px;border:1px solid ' + itemBorder + ';flex-wrap:wrap;gap:6px">' +
       '<div style="flex:1;min-width:200px">' +
-      '<div style="font-weight:600;font-size:13px;color:#1E293B">' + dateStr + '</div>' +
-      '<div style="font-size:11px;color:#64748B">' + (s.name || 'ไม่ระบุ') +
+      '<div style="font-weight:600;font-size:13px;color:' + textMain + '">' + dateStr + '</div>' +
+      '<div style="font-size:11px;color:' + textSub + '">' + (s.name || 'ไม่ระบุ') +
       ' | ออกอายุ ' + s.summary.retireAge + ' (พ.ศ.' + s.summary.retireYear + ')' +
       ' | สุทธิ ฿' + fmt(s.summary.netIncome) +
       ' | <span style="color:' + npvColor + '">NPV ฿' + fmt(s.summary.npv) + '</span></div>' +

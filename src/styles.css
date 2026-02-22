@@ -176,6 +176,40 @@ body.dark .chart-info-popup{background:#0F172A!important}
 body.dark #snapshotList > div > div{background:#1a2744!important;border-color:#334155!important;color:#E2E8F0!important}
 body.dark table tr:hover td{background:#1e3a5f!important}
 
+/* === Dark Mode — Heatmap colors === */
+body.dark .ht-green{background:#064e3b!important;color:#6ee7b7!important}
+body.dark .ht-lgreen{background:#022c22!important;color:#6ee7b7!important}
+body.dark .ht-yellow{background:#451a03!important;color:#fde68a!important}
+body.dark .ht-orange{background:#431407!important;color:#fdba74!important}
+body.dark .ht-red{background:#450a0a!important;color:#fca5a5!important}
+body.dark .ht-dred{background:#3b0808!important;color:#f87171!important}
+
+/* === Dark Mode — Package Badges === */
+body.dark .pkg-36{background:#064e3b!important;color:#6ee7b7!important}
+body.dark .pkg-18{background:#451a03!important;color:#fde68a!important}
+body.dark .pkg-12{background:#431407!important;color:#fdba74!important}
+body.dark .pkg-6{background:#450a0a!important;color:#fca5a5!important}
+body.dark .pkg-0{background:#1e293b!important;color:#94A3B8!important}
+
+/* === Dark Mode — Timeline (Tab กฎหมาย) === */
+body.dark .timeline::before{background:#475569!important}
+body.dark .tl-item .tl-title{color:var(--text-main)!important}
+body.dark .tl-item .tl-desc{color:var(--text-sub)!important}
+body.dark .tl-item .tl-date{color:var(--text-sub)!important}
+
+/* === Dark Mode — Checklist === */
+body.dark .checklist li{border-bottom-color:var(--border)!important}
+body.dark .checklist li::before{border-color:#475569!important}
+
+/* === Dark Mode — Score Bar === */
+body.dark .score-bar{background:#334155!important}
+
+/* === Dark Mode — Modal close hover === */
+body.dark .modal-close:hover{color:var(--text-main)!important}
+
+/* === Dark Mode — Welfare Total Label (inline color override) === */
+body.dark #mdWelfareTotalLabel{color:#60a5fa!important}
+
 @media print{body{zoom:1 !important}.sticky-nav,.ctrl-panel,.pin-bar,.no-print{display:none !important}.tab-panel{display:block !important;page-break-after:always}}
 /* Tooltip อธิบายกราฟ — ℹ️ icon + popup เมื่อ hover */
 .chart-info{display:inline-block;width:20px;height:20px;border-radius:50%;background:#E2E8F0;color:#475569;text-align:center;font-size:11px;line-height:20px;cursor:help;position:relative;margin-left:6px;vertical-align:middle}

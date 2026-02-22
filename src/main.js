@@ -227,6 +227,14 @@ function toggleDarkMode() {
   localStorage.setItem('earlyRetireTheme', isDark ? 'dark' : 'light');
   const btn = document.getElementById('darkModeBtn');
   if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+  // Re-render charts ด้วยสี theme ใหม่ (ถ้า Tab ที่ active มี chart)
+  const activeIdx = [...document.querySelectorAll('.main-tab')]
+    .findIndex(t => t.classList.contains('active'));
+  if (activeIdx >= 2) {
+    destroyAllCharts();
+    setTab2Init(false); setTab3Init(false); setTab4Init(false);
+    switchTab(activeIdx);
+  }
 }
 
 // ============================================================
@@ -236,6 +244,8 @@ function resetDefaults() {
   // Reset activeProfile กลับเป็นค่าว่าง (DEFAULT_PROFILE)
   setActiveProfile(JSON.parse(JSON.stringify(DEFAULT_PROFILE)));
   applyProfileToUI();
+  // สร้าง retireYear dropdown ใหม่จาก DEFAULT birthYear/retireMaxAge ก่อน set ค่า
+  buildRetireYearOptions(CURRENT_YEAR_BE);
   // Reset simulator controls
   document.getElementById('retireYear').value = String(CURRENT_YEAR_BE);
   document.getElementById('retireMonth').value = 6;

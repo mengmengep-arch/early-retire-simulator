@@ -5,6 +5,21 @@ import { CHARTS, PINNED } from '../state.js';
 import { PIN_COLORS } from '../config.js';
 import { fmt } from '../utils.js';
 
+// helper สีตาม theme
+function _tc() {
+  const d = document.body.classList.contains('dark');
+  return {
+    bgBlue:   d ? '#0c2340' : '#EFF6FF',
+    bgGreen:  d ? '#022c22' : '#ECFDF5',
+    bgYellow: d ? '#451a03' : '#FEF3C7',
+    bgBlue2:  d ? '#0c1f40' : '#DBEAFE',
+    bgRed:    d ? '#3b0a0a' : '#FEE2E2',
+    blue:     d ? '#93C5FD' : '#1E40AF',
+    red:      d ? '#fca5a5' : '#991B1B',
+    grid:     d ? '#334155' : '#E2E8F0',
+  };
+}
+
 export function updateTab1(r) {
   // ===== Helper: สร้างคอลัมน์ header — เฉพาะ Pin A/B/C (ไม่มี "ปัจจุบัน") =====
   const hasPins = PINNED.length > 0;
@@ -35,17 +50,18 @@ export function updateTab1(r) {
   }
 
   // ตารางภาษีเงินก้อน
+  const tc = _tc();
   const lt = document.getElementById('lumpTaxTable');
   lt.innerHTML = makeHeader() +
     '<tr><td>Early Merit</td>' + makeCells(s => s.earlyMerit, () => 'font-weight:700') + '</tr>' +
     '<tr><td>ชดเชยกฎหมาย</td>' + makeCells(s => s.severanceAmt, () => 'font-weight:700') + '</tr>' +
-    '<tr style="background:#EFF6FF"><td class="bold">รวมเงินก้อน</td>' + makeCells(s => s.earlyTotal, () => 'font-weight:700') + '</tr>' +
-    '<tr style="background:#ECFDF5"><td>หักยกเว้น 600K</td>' + makeCells(s => s.lumpTax.exemption, () => 'color:#10B981') + '</tr>' +
+    '<tr style="background:' + tc.bgBlue + '"><td class="bold">รวมเงินก้อน</td>' + makeCells(s => s.earlyTotal, () => 'font-weight:700') + '</tr>' +
+    '<tr style="background:' + tc.bgGreen + '"><td>หักยกเว้น 600K</td>' + makeCells(s => s.lumpTax.exemption, () => 'color:#10B981') + '</tr>' +
     '<tr><td>หักอายุงาน</td>' + makeCells(s => s.lumpTax.yearsDeduction, () => 'color:#10B981') + '</tr>' +
     '<tr><td>เหลือหลังหัก</td>' + makeCells(s => s.lumpTax.afterYears, () => 'font-weight:700') + '</tr>' +
-    '<tr style="background:#FEF3C7"><td>หักอีก 50%</td>' + makeCells(s => s.lumpTax.halfDeduction, () => 'color:#10B981') + '</tr>' +
-    '<tr style="background:#DBEAFE"><td class="bold" style="font-size:15px">เงินได้สุทธิ(แยกยื่น)</td>' + makeCells(s => s.lumpTax.netForTax, () => 'font-weight:700;font-size:15px;color:#1E40AF') + '</tr>' +
-    '<tr style="background:#FEE2E2"><td class="bold" style="font-size:15px">ภาษีเงินก้อน</td>' + makeCells(s => s.lumpTax.tax, () => 'font-weight:700;font-size:15px;color:#991B1B') + '</tr>';
+    '<tr style="background:' + tc.bgYellow + '"><td>หักอีก 50%</td>' + makeCells(s => s.lumpTax.halfDeduction, () => 'color:#10B981') + '</tr>' +
+    '<tr style="background:' + tc.bgBlue2 + '"><td class="bold" style="font-size:15px">เงินได้สุทธิ(แยกยื่น)</td>' + makeCells(s => s.lumpTax.netForTax, () => 'font-weight:700;font-size:15px;color:' + tc.blue) + '</tr>' +
+    '<tr style="background:' + tc.bgRed + '"><td class="bold" style="font-size:15px">ภาษีเงินก้อน</td>' + makeCells(s => s.lumpTax.tax, () => 'font-weight:700;font-size:15px;color:' + tc.red) + '</tr>';
 
   // ตารางภาษีเงินเดือน
   const st = document.getElementById('salaryTaxTable');
@@ -53,8 +69,8 @@ export function updateTab1(r) {
     '<tr><td>เงินได้ 40(1)</td>' + makeCells(s => s.salaryTax.totalIncome40_1, () => 'font-weight:700') + '</tr>' +
     '<tr><td>หักค่าใช้จ่าย</td>' + makeCells(s => s.salaryTax.expense, () => 'color:#10B981') + '</tr>' +
     '<tr><td>หักค่าลดหย่อนรวม</td>' + makeCells(s => s.salaryTax.dedTotal, () => 'color:#10B981') + '</tr>' +
-    '<tr style="background:#DBEAFE"><td class="bold">เงินได้สุทธิ</td>' + makeCells(s => s.salaryTax.netIncome, () => 'font-weight:700;color:#1E40AF') + '</tr>' +
-    '<tr style="background:#FEE2E2"><td class="bold" style="font-size:15px">ภาษีเงินเดือน</td>' + makeCells(s => s.salaryTax.tax, () => 'font-weight:700;font-size:15px;color:#991B1B') + '</tr>';
+    '<tr style="background:' + tc.bgBlue2 + '"><td class="bold">เงินได้สุทธิ</td>' + makeCells(s => s.salaryTax.netIncome, () => 'font-weight:700;color:' + tc.blue) + '</tr>' +
+    '<tr style="background:' + tc.bgRed + '"><td class="bold" style="font-size:15px">ภาษีเงินเดือน</td>' + makeCells(s => s.salaryTax.tax, () => 'font-weight:700;font-size:15px;color:' + tc.red) + '</tr>';
 
   // กราฟขั้นบันได
   updateStepChart('lumpStepChart', 'lumpStep', r.lumpTax.steps, 'ภาษีเงินก้อน');
@@ -100,7 +116,7 @@ export function updateStepChart(canvasId, chartKey, steps, title) {
           datalabels: { display: false }
         },
         scales: {
-          x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } },
+          x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _tc().grid; } } },
           y: { grid: { display: false } }
         }
       }
@@ -115,7 +131,7 @@ export function updateStepChart(canvasId, chartKey, steps, title) {
       type: 'bar', data: { labels: bracketLabels, datasets: [{ label: title, data, backgroundColor: defaultColors.slice(0, data.length), borderRadius: 4 }] },
       options: { responsive: true, indexAxis: 'y', plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => '฿' + fmt(c.raw) } },
         datalabels: { display: false } },
-        scales: { x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } }, y: { grid: { display: false } } } }
+        scales: { x: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _tc().grid; } } }, y: { grid: { display: false } } } }
     });
   } else {
     CHARTS[chartKey].data.labels = bracketLabels;

@@ -121,10 +121,26 @@ export function updateIncomeBreakdownChart() {
   CHARTS.incomeBreakdown.update();
 }
 
+// helper สีตาม theme
+function _tc() {
+  const d = document.body.classList.contains('dark');
+  return {
+    grid:       d ? '#334155' : '#E2E8F0',
+    btnBg:      d ? '#334155' : '#E2E8F0',
+    btnColor:   d ? '#CBD5E1' : '#475569',
+    cliffBefore: d ? '#451a03' : '#FEF3C7',
+    cliffAfter:  d ? '#3b0a0a' : '#FEE2E2',
+    headerCard:  d ? '#1e293b' : '#F1F5F9',
+    headerText:  d ? '#94A3B8' : '#334155',
+    headerBorder: d ? '#334155' : '#CBD5E1',
+  };
+}
+
 // Toggle สลับ Gross/Net
 export function toggleGrossNet(tab) {
   showNet[tab] = !showNet[tab];
   const isNet = showNet[tab];
+  const tc = _tc();
 
   if (tab === 'tab2') {
     updateTotalWealthChart();
@@ -132,8 +148,8 @@ export function toggleGrossNet(tab) {
     if (btn) {
       btn.textContent = isNet ? '✅ Net (หลังหักภาษี)' : '💰 Gross (ก่อนภาษี)';
       btn.className = isNet ? 'btn toggle-net' : 'btn';
-      btn.style.background = isNet ? '' : '#E2E8F0';
-      btn.style.color = isNet ? '' : '#475569';
+      btn.style.background = isNet ? '' : tc.btnBg;
+      btn.style.color = isNet ? '' : tc.btnColor;
     }
   }
   if (tab === 'tab4') {
@@ -142,8 +158,8 @@ export function toggleGrossNet(tab) {
     if (btn) {
       btn.textContent = isNet ? '✅ Net (หลังหักภาษี)' : '💰 Gross (ก่อนภาษี)';
       btn.className = isNet ? 'btn toggle-net' : 'btn';
-      btn.style.background = isNet ? '' : '#E2E8F0';
-      btn.style.color = isNet ? '' : '#475569';
+      btn.style.background = isNet ? '' : tc.btnBg;
+      btn.style.color = isNet ? '' : tc.btnColor;
     }
   }
 }
@@ -153,6 +169,7 @@ export function toggleGrossNet(tab) {
 // ============================================================
 export function initTab2() {
   if (tab2Init) return; setTab2Init(true);
+  const tc = _tc();
   const ages = activeProfile.masterData.map(d => d.age + '');
   const pkgColors = activeProfile.masterData.map(d => d.pkg >= 36 ? '#10B981' : d.pkg >= 18 ? '#F59E0B' : d.pkg >= 12 ? '#F97316' : d.pkg >= 6 ? '#EF4444' : '#94A3B8');
 
@@ -178,7 +195,7 @@ export function initTab2() {
     options: { responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + ' เดือน' } },
       datalabels: { display: function(ctx) { return borderWidths[ctx.dataIndex] > 0; }, anchor: 'end', align: 'top', color: function(ctx) { return borderColors[ctx.dataIndex]; },
         font: { weight: 'bold', size: 11 }, formatter: function(v, ctx) { const idx = pinnedAgeMap[parseInt(ages[ctx.dataIndex])]; return idx !== undefined ? '📌' + PIN_COLORS[idx].name : ''; } } },
-      scales: { x: { grid: { display: false }, title: { display: true, text: 'อายุ (ปี)' } }, y: { title: { display: true, text: 'เดือน' }, grid: { color: '#E2E8F0' } } } }
+      scales: { x: { grid: { display: false }, title: { display: true, text: 'อายุ (ปี)' } }, y: { title: { display: true, text: 'เดือน' }, grid: { color: tc.grid } } } }
   });
 
   // Total Wealth Stacked — highlight border บน dataset สุดท้าย (top of stack)
@@ -193,7 +210,7 @@ export function initTab2() {
     type: 'bar', data: { labels: ages, datasets: wealthDatasets },
     options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } },
       tooltip: { callbacks: { label: c => c.dataset.label + ': ฿' + fmt(c.raw) } }, datalabels: { display: false } },
-      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } } } }
+      scales: { x: { stacked: true, grid: { display: false } }, y: { stacked: true, ticks: { callback: v => '฿' + fmt(v) }, grid: { color: tc.grid } } } }
   });
 
   // Master Table — highlight rows ที่ pinned + cliff ages (dynamic)
@@ -211,7 +228,7 @@ export function initTab2() {
       hl = ' style="background:' + c.text + ';border-left:4px solid ' + c.bg + '"';
       badge = ' <span style="background:' + c.bg + ';color:#fff;padding:1px 5px;border-radius:8px;font-size:10px;font-weight:700">' + c.name + '</span>';
     } else {
-      hl = d.age === mtCliffBefore ? ' style="background:#FEF3C7"' : d.age === mtCliffAfter ? ' style="background:#FEE2E2"' : '';
+      hl = d.age === mtCliffBefore ? ' style="background:' + tc.cliffBefore + '"' : d.age === mtCliffAfter ? ' style="background:' + tc.cliffAfter + '"' : '';
     }
     const pkgCls = d.pkg >= 36 ? 'pkg-36' : d.pkg >= 18 ? 'pkg-18' : d.pkg >= 12 ? 'pkg-12' : d.pkg >= 6 ? 'pkg-6' : 'pkg-0';
     html += `<tr${hl}><td class="bold">${d.age}${badge}</td><td>${d.year}</td><td>${d.workYrs}</td><td class="right">${fmt(d.salary)}</td><td><span class="pkg-badge ${pkgCls}">${d.pkg}M</span></td><td class="right">${fmt(d.earlyMerit)}</td><td class="right">${fmt(d.severance)}</td><td class="right bold">${fmt(d.earlyTotal)}</td><td class="right">${fmt(d.pvd)}</td><td class="right bold">${fmt(d.totalIncome)}</td></tr>`;
@@ -245,6 +262,6 @@ export function initTab2() {
     type: 'bar', data: { labels: yoyLabels,
       datasets: [{ label: 'Net Change', data: yoyData, backgroundColor: yoyBgColors, borderRadius: 6, borderWidth: yoyBorderWidths, borderColor: yoyBorderColors }] },
     options: { responsive: true, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => (c.raw >= 0 ? '+' : '') + '฿' + fmt(c.raw) } }, datalabels: { display: false } },
-      scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => (v >= 0 ? '+' : '') + '฿' + fmt(v) }, grid: { color: '#E2E8F0' } } } }
+      scales: { x: { grid: { display: false } }, y: { ticks: { callback: v => (v >= 0 ? '+' : '') + '฿' + fmt(v) }, grid: { color: tc.grid } } } }
   });
 }

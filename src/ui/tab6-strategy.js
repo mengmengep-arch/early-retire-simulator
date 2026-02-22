@@ -6,6 +6,27 @@ import { CHARTS, STATE, activeProfile, PINNED, tab4Init, setTab4Init } from '../
 import { PIN_COLORS, CONFIG, DEFAULT_PROFILE, CURRENT_YEAR_BE } from '../config.js';
 import { fmt } from '../utils.js';
 
+// helper สีตาม theme
+function _tc() {
+  const d = document.body.classList.contains('dark');
+  return {
+    grid:       d ? '#334155' : '#E2E8F0',
+    zeroLine:   d ? '#94A3B8' : '#1E293B',
+    textSub:    d ? '#94A3B8' : '#64748B',
+    cardBg:     d ? '#1e293b' : '#F1F5F9',
+    cardBorder: d ? '#475569' : '#CBD5E1',
+    cardText:   d ? '#CBD5E1' : '#334155',
+    ocBg:       d ? '#451a03' : '#FEF3C7',
+    ocBorder:   d ? '#92400E' : '#FCD34D',
+    ocTitle:    d ? '#fde68a' : '#92400E',
+    ocCellBg:   d ? '#0f172a' : '#fff',
+    score80:    d ? '#064e3b' : '#D1FAE5',
+    score60:    d ? '#451a03' : '#FEF3C7',
+    score40:    d ? '#431407' : '#FFEDD5',
+    scoreRed:   d ? '#3b0a0a' : '#FEE2E2',
+  };
+}
+
 export function initTab4() {
   if (tab4Init) return; setTab4Init(true);
 
@@ -31,10 +52,11 @@ export function initTab4() {
     const medals = ['🏆', '🥈', '🥉'];
     const rankLabels = ['อันดับ 1', 'อันดับ 2', 'อันดับ 3'];
     // สีพื้นหลังแต่ละอันดับ
+    const tc = _tc();
     const bgColors = [
       'background:linear-gradient(135deg,#065F46,#10B981);color:#fff',
       'background:linear-gradient(135deg,#1E3A5F,#3B82F6);color:#fff',
-      'background:#F1F5F9;color:#334155;border:1px solid #CBD5E1'
+      'background:' + tc.cardBg + ';color:' + tc.cardText + ';border:1px solid ' + tc.cardBorder
     ];
     let bsHtml = '';
     top3.forEach((item, idx) => {
@@ -101,7 +123,7 @@ export function initTab4() {
       responsive: true,
       scales: {
         x: { stacked: true, grid: { display: false }, title: { display: true, text: 'อายุที่ออก' } },
-        y: { stacked: true, ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } },
+        y: { stacked: true, ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _tc().grid; } } },
         y1: {
           type: 'linear',
           position: 'right',
@@ -187,7 +209,7 @@ export function initTab4() {
         color: function(ctx) { return npvBorderColors[ctx.dataIndex]; }, font: { weight: 'bold', size: 10 },
         formatter: function(v, ctx) { const idx = pinnedAgeMap[ages[ctx.dataIndex]]; return idx !== undefined ? '📌' + PIN_COLORS[idx].name : ''; } } },
       scales: { x: { grid: { display: false }, title: { display: true, text: 'อายุที่ออก' } },
-        y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function(ctx) { return ctx.tick.value === 0 ? '#1E293B' : '#E2E8F0'; }, lineWidth: function(ctx) { return ctx.tick.value === 0 ? 2 : 1; } } } } }
+        y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function(ctx) { const t = _tc(); return ctx.tick.value === 0 ? t.zeroLine : t.grid; }, lineWidth: function(ctx) { return ctx.tick.value === 0 ? 2 : 1; } } } } }
   });
 
   // Opportunity Cost Breakdown Card — แสดงรายละเอียดของ scenario ปัจจุบัน
@@ -205,14 +227,15 @@ export function initTab4() {
       'PVD ' + (activeProfile.pvdReturnRate || 3.5) + '%/ปี | ' +
       'เงินเฟ้อ ' + inflRate + '%</div>';
     ocCard.style.display = 'block';
-    ocCard.innerHTML = '<div style="margin-top:12px;padding:12px;background:#FEF3C7;border-radius:10px;border:1px solid #FCD34D">' +
-      '<div style="font-weight:700;font-size:13px;color:#92400E;margin-bottom:6px">⚠️ Opportunity Cost (ออกอายุ ' + currentAge + ' แทนเกษียณ ' + maxRetireAge + ')</div>' +
+    const tc2 = _tc();
+    ocCard.innerHTML = '<div style="margin-top:12px;padding:12px;background:' + tc2.ocBg + ';border-radius:10px;border:1px solid ' + tc2.ocBorder + '">' +
+      '<div style="font-weight:700;font-size:13px;color:' + tc2.ocTitle + ';margin-bottom:6px">⚠️ Opportunity Cost (ออกอายุ ' + currentAge + ' แทนเกษียณ ' + maxRetireAge + ')</div>' +
       '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;font-size:12px">' +
-      '<div style="text-align:center;padding:8px;background:#fff;border-radius:8px"><div style="color:#64748B">เงินเดือนเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalSalary) + '</div></div>' +
-      '<div style="text-align:center;padding:8px;background:#fff;border-radius:8px"><div style="color:#64748B">สวัสดิการเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalWelfare) + '</div></div>' +
-      '<div style="text-align:center;padding:8px;background:#fff;border-radius:8px"><div style="color:#64748B">PVD สมทบเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalPvd) + '</div></div>' +
+      '<div style="text-align:center;padding:8px;background:' + tc2.ocCellBg + ';border-radius:8px"><div style="color:' + tc2.textSub + '">เงินเดือนเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalSalary) + '</div></div>' +
+      '<div style="text-align:center;padding:8px;background:' + tc2.ocCellBg + ';border-radius:8px"><div style="color:' + tc2.textSub + '">สวัสดิการเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalWelfare) + '</div></div>' +
+      '<div style="text-align:center;padding:8px;background:' + tc2.ocCellBg + ';border-radius:8px"><div style="color:' + tc2.textSub + '">PVD สมทบเสีย</div><div style="font-weight:700;color:#DC2626">฿' + fmt(currentOC.totalPvd) + '</div></div>' +
       '</div>' +
-      '<div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;color:#92400E">รวม OC (PV @ ' + inflRate + '%): ฿' + fmt(currentOC.totalPV) + '</div>' +
+      '<div style="text-align:center;margin-top:8px;font-size:14px;font-weight:700;color:' + tc2.ocTitle + '">รวม OC (PV @ ' + inflRate + '%): ฿' + fmt(currentOC.totalPV) + '</div>' +
       assumptions +
       '</div>';
   } else {
@@ -264,17 +287,17 @@ export function initTab4() {
     type: 'line', data: { labels: ages.map(a => a + ''), datasets: breakevenDatasets },
     options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 10 } } },
       tooltip: { callbacks: { label: c => c.dataset.label + ': ฿' + fmt(c.raw) } }, datalabels: { display: false } },
-      scales: { x: { grid: { display: false }, title: { display: true, text: 'อายุ' } }, y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: '#E2E8F0' } } } }
+      scales: { x: { grid: { display: false }, title: { display: true, text: 'อายุ' } }, y: { ticks: { callback: v => '฿' + fmt(v) }, grid: { color: function() { return _tc().grid; } } } } }
   });
 
   // Decision Table — ใช้ calcDecisionScores() ฟังก์ชันกลาง (ไม่ duplicate logic)
   const dt = document.getElementById('decisionTable');
   if (!mdArr.length || !activeProfile.salary) {
-    dt.innerHTML = '<tr><td class="center" style="padding:20px;color:#64748B">กรุณากรอกข้อมูลก่อน</td></tr>';
+    dt.innerHTML = '<tr><td class="center" style="padding:20px;color:' + _tc().textSub + '">กรุณากรอกข้อมูลก่อน</td></tr>';
   } else {
     const allScores = CALC.calcDecisionScores(mdArr);
     if (allScores.length === 0) {
-      dt.innerHTML = '<tr><td class="center" style="padding:20px;color:#64748B">ไม่มีข้อมูลอายุที่แสดง</td></tr>';
+      dt.innerHTML = '<tr><td class="center" style="padding:20px;color:' + _tc().textSub + '">ไม่มีข้อมูลอายุที่แสดง</td></tr>';
     } else {
       const dtAges = allScores.map(s => s.age);
       const criteria = allScores[0].criteria; // criteria เหมือนกันทุก entry
@@ -297,12 +320,13 @@ export function initTab4() {
       });
       dtHtml += '</tr>';
       // แถว criteria — แต่ละเกณฑ์ + highlight คอลัมน์ best
+      const tc3 = _tc();
       criteria.forEach(c => {
         dtHtml += `<tr><td><strong>${c.name}</strong> (${c.weight}%)</td>`;
         c.scores.forEach((s, i) => {
           const pinIdx = pinnedAgeMap[dtAges[i]];
           const isBest = i === bestIdx;
-          let bg = s >= 80 ? '#D1FAE5' : s >= 60 ? '#FEF3C7' : s >= 40 ? '#FFEDD5' : '#FEE2E2';
+          let bg = s >= 80 ? tc3.score80 : s >= 60 ? tc3.score60 : s >= 40 ? tc3.score40 : tc3.scoreRed;
           let border = '';
           if (isBest) border = 'border-left:3px solid #065F46;border-right:3px solid #065F46';
           else if (pinIdx !== undefined) border = 'border-left:3px solid ' + PIN_COLORS[pinIdx].bg + ';border-right:3px solid ' + PIN_COLORS[pinIdx].bg;
