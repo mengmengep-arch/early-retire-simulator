@@ -8,6 +8,8 @@
 <link rel="stylesheet" href="/src/styles.css">
 </head><body>
 
+<!-- ===== STICKY NAV: Header + Tabs ===== -->
+<div class="sticky-nav">
 <!-- ===== HEADER ===== -->
 <div class="header">
 <div>
@@ -19,12 +21,16 @@
 <div class="small">เงินสุทธิหลังภาษี (real-time)</div>
 </div>
 <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<button onclick="toggleDarkMode()" class="zoom-btn" id="darkModeBtn" title="เปิด/ปิด Dark Mode">🌙</button>
 <button onclick="changeZoom(-1)" class="zoom-btn" title="ตัวหนังสือเล็กลง">A-</button>
 <button onclick="changeZoom(0)" class="zoom-btn" style="color:#F59E0B" title="ขนาดปกติ">A</button>
 <button onclick="changeZoom(1)" class="zoom-btn" title="ตัวหนังสือใหญ่ขึ้น">A+</button>
 <span id="zoomLabel" style="font-size:11px;color:#94A3B8;min-width:36px;text-align:center">100%</span>
 <button onclick="showAbout()" class="zoom-btn" title="เกี่ยวกับเครื่องมือนี้">ℹ️</button>
 <button onclick="exportPDF()" class="zoom-btn" style="background:#F59E0B;color:#0F172A;padding:4px 14px" title="ส่งออกเป็น PDF">📄 PDF</button>
+<span style="border-left:1px solid #334155;height:20px;margin:0 2px"></span>
+<button onclick="exportProfile()" class="zoom-btn" style="background:#3B82F6;color:#fff" title="Export ข้อมูลเป็น JSON">📥 Export</button>
+<button onclick="document.getElementById('importFile').click()" class="zoom-btn" style="background:#059669;color:#fff" title="Import ข้อมูลจาก JSON">📤 Import</button>
 </div>
 </div>
 
@@ -39,6 +45,7 @@
 <div class="main-tab" onclick="switchTab(6)">💡 กลยุทธ์ & NPV</div>
 <div class="main-tab" onclick="switchTab(7)">⚖️ กฎหมาย</div>
 </div>
+</div><!-- /sticky-nav -->
 
 <!-- ===== TAB 0: วิธีใช้ ===== -->
 <div class="tab-panel" id="panel-0">
@@ -449,6 +456,7 @@
 <h3 style="margin-bottom:16px;font-size:18px">Heatmap ภาษีรวม — 12 อายุ × 12 เดือน = 144 Scenarios</h3>
 <p style="color:#64748B;font-size:12px;margin-bottom:16px">คลิกช่องใดก็ได้เพื่อโหลด scenario นั้นใน Simulator</p>
 <div class="cards" id="heatmapCards"></div>
+<div id="heatmapSummary"></div>
 <div class="chart-box"><div style="overflow-x:auto"><table class="heatmap-table" id="heatmapTable"></table></div>
 <div style="margin-top:8px;font-size:11px;color:#64748B">สีเขียว = ภาษีต่ำ | สีเหลือง = ปานกลาง | สีแดง = สูง | คลิกเพื่อโหลด scenario</div>
 </div>

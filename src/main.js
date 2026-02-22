@@ -220,6 +220,16 @@ function updatePinButton() {
 }
 
 // ============================================================
+// Dark Mode Toggle — สลับ Light/Dark + จำค่าใน localStorage
+// ============================================================
+function toggleDarkMode() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('earlyRetireTheme', isDark ? 'dark' : 'light');
+  const btn = document.getElementById('darkModeBtn');
+  if (btn) btn.textContent = isDark ? '☀️' : '🌙';
+}
+
+// ============================================================
 // resetDefaults — ล้างข้อมูลทั้งหมด กลับค่าเริ่มต้น
 // ============================================================
 function resetDefaults() {
@@ -277,6 +287,7 @@ window.updatePinBar = updatePinBar;
 window.loadPinScenario = loadPinScenario;
 window.updatePinButton = updatePinButton;
 window.resetDefaults = resetDefaults;
+window.toggleDarkMode = toggleDarkMode;
 window.changeZoom = changeZoom;
 window.showAbout = showAbout;
 window.hideAbout = hideAbout;
@@ -314,6 +325,12 @@ window.initTab5 = initTab5;
 Chart.defaults.plugins.datalabels = { display: false };
 // โหลดระดับ zoom ที่บันทึกไว้
 applyZoom();
+// โหลด Dark Mode จาก localStorage
+if (localStorage.getItem('earlyRetireTheme') === 'dark') {
+  document.body.classList.add('dark');
+  const btn = document.getElementById('darkModeBtn');
+  if (btn) btn.textContent = '☀️';
+}
 // โหลด activeProfile จาก localStorage (ถ้ามี) หรือใช้ดีฟอลต์
 autoLoadActiveProfile();
 // อัพเดต Pin Bar จาก Pinned ที่โหลดมา
