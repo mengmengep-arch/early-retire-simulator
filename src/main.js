@@ -232,7 +232,7 @@ function toggleDarkMode() {
     .findIndex(t => t.classList.contains('active'));
   if (activeIdx >= 2) {
     destroyAllCharts();
-    setTab2Init(false); setTab3Init(false); setTab4Init(false);
+    setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
     switchTab(activeIdx);
   }
 }
@@ -279,6 +279,7 @@ function resetDefaults() {
   updatePinButton();
   // ล้าง Snapshot history จาก localStorage
   localStorage.removeItem('earlyRetireSnapshots');
+  renderSnapshots();
   onInputChange();
   showToast('🧹 ล้างข้อมูลทั้งหมดแล้ว — เริ่มใส่ข้อมูลใหม่ได้เลย');
 }

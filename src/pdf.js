@@ -3,7 +3,8 @@
 // ============================================================
 import { activeProfile, CHARTS,
   tab2Init, setTab2Init, tab3Init, setTab3Init,
-  tab4Init, setTab4Init, tab5Init, setTab5Init
+  tab4Init, setTab4Init, tab5Init, setTab5Init,
+  destroyAllCharts
 } from './state.js';
 import { CONFIG, TAB_NAMES, TAB_NAMES_PDF } from './config.js';
 import { fmt, showToast } from './utils.js';
@@ -323,6 +324,17 @@ export async function exportPDF() {
   if (!tab4Init) window.initTab4();
   if (!tab5Init) window.initTab5();
 
+  // 1.5 ถ้า dark mode → ชั่วคราว switch เป็น light เพื่อให้ PDF อ่านออก
+  const wasDark = document.body.classList.contains('dark');
+  if (wasDark) {
+    document.body.classList.remove('dark');
+    destroyAllCharts();
+    setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
+    await new Promise(r => setTimeout(r, 300));
+    window.initTab2(); window.initTab3(); window.initTab4(); window.initTab5();
+    await new Promise(r => setTimeout(r, 500));
+  }
+
   // 2. จำสถานะเดิม
   const panels = document.querySelectorAll('.tab-panel');
   const origDisplay = [];
@@ -439,4 +451,10 @@ export async function exportPDF() {
   document.body.style.zoom = origZoom;
   panels.forEach((p, i) => p.style.display = origDisplay[i]);
   hideEls.forEach((el, i) => el.style.display = origHide[i]);
+  // คืน dark mode (ถ้าเคยเป็น dark) + reset tab flags ให้ charts re-render ใน dark theme
+  if (wasDark) {
+    document.body.classList.add('dark');
+    destroyAllCharts();
+    setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
+  }
 }
