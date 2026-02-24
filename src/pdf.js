@@ -318,21 +318,24 @@ export async function exportPDF() {
 
   showToast('⏳ กำลังสร้าง PDF... อาจใช้เวลา 15-30 วินาที');
 
-  // 1. Force init ทุก tab เพื่อให้กราฟแสดงครบ
-  if (!tab2Init) window.initTab2();
-  if (!tab3Init) window.initTab3();
-  if (!tab4Init) window.initTab4();
-  if (!tab5Init) window.initTab5();
+  // Overlay: ปิดกั้น UI ไม่ให้ user เห็น theme switching ระหว่าง export
+  const pdfOverlay = document.createElement('div');
+  pdfOverlay.style.cssText = 'position:fixed;inset:0;background:rgba(15,23,42,0.95);z-index:99999;'
+    + 'display:flex;align-items:center;justify-content:center;color:#e2e8f0;'
+    + 'font-size:16px;font-family:Sarabun,sans-serif;flex-direction:column;gap:12px;pointer-events:none';
+  pdfOverlay.innerHTML = '<div style="font-size:32px">📄</div>'
+    + '<div>กำลังเตรียม PDF...</div>'
+    + '<div style="font-size:12px;color:#94a3b8">อาจใช้เวลา 15-30 วินาที</div>';
+  document.body.appendChild(pdfOverlay);
 
-  // 1.5 ถ้า dark mode → ชั่วคราว switch เป็น light เพื่อให้ PDF อ่านออก
+  // 1. ถ้า dark mode → switch เป็น light ก่อน (charts จะ init per-panel ใน step 6)
   const wasDark = document.body.classList.contains('dark');
   if (wasDark) {
     document.body.classList.remove('dark');
     destroyAllCharts();
     setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
     await new Promise(r => setTimeout(r, 300));
-    window.initTab2(); window.initTab3(); window.initTab4(); window.initTab5();
-    await new Promise(r => setTimeout(r, 500));
+    // หมายเหตุ: ไม่เรียก initTab ที่นี่ → จะ init per-panel ในขณะที่ panel visible (step 6)
   }
 
   // 2. จำสถานะเดิม
@@ -389,8 +392,18 @@ export async function exportPDF() {
           p.style.display = (i === tabIdx) ? 'block' : 'none';
         });
 
-        // รอ render (กราฟ + layout)
-        await new Promise(r => setTimeout(r, 600));
+        // Init charts AFTER panel visible เพื่อให้ canvas ได้ขนาดที่ถูกต้อง
+        // dark mode: re-draw income/tax charts ด้วย light theme colors
+        if (wasDark && tabIdx === 2) window.reDrawChartsForPanel?.(2);
+        if (wasDark && tabIdx === 3) window.reDrawChartsForPanel?.(3);
+        // lazy-init สำหรับ flagged tabs (panels 4-7)
+        if (tabIdx === 4 && !tab2Init) window.initTab2();
+        if (tabIdx === 5 && !tab3Init) window.initTab3();
+        if (tabIdx === 6 && !tab4Init) window.initTab4();
+        if (tabIdx === 7 && !tab5Init) window.initTab5();
+
+        // รอ render (กราฟ + layout) — เพิ่มเวลาให้ Chart.js resize + repaint
+        await new Promise(r => setTimeout(r, 800));
 
         const panel = document.getElementById('panel-' + tabIdx);
         if (!panel) { tabsFail++; continue; }
@@ -457,4 +470,5 @@ export async function exportPDF() {
     destroyAllCharts();
     setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
   }
+  pdfOverlay.remove(); // เอา overlay ออกหลังทุกอย่างเสร็จ
 }

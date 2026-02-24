@@ -328,6 +328,14 @@ window.initTab2 = initTab2;
 window.initTab3 = initTab3;
 window.initTab4 = initTab4;
 window.initTab5 = initTab5;
+// Helper สำหรับ PDF export: re-draw income/tax charts ใน theme ปัจจุบัน
+// เรียกขณะที่ panel นั้น visible เพื่อให้ Chart.js ได้ขนาด canvas ที่ถูกต้อง
+window.reDrawChartsForPanel = function(panelIdx) {
+  readState();
+  const r = CALC.calcFullScenario(STATE);
+  if (panelIdx === 2) updateCharts(r);
+  if (panelIdx === 3) updateTab1(r);
+};
 
 // ============================================================
 // เริ่มต้น — Initialization
