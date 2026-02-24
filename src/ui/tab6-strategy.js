@@ -24,6 +24,7 @@ function _tc() {
     score60:    d ? '#451a03' : '#FEF3C7',
     score40:    d ? '#431407' : '#FFEDD5',
     scoreRed:   d ? '#3b0a0a' : '#FEE2E2',
+    headerBg:   d ? '#0F172A' : '#1E293B',
   };
 }
 
@@ -335,7 +336,7 @@ export function initTab4() {
         dtHtml += '</tr>';
       });
       // แถวคะแนนรวม — highlight best ด้วยสีเขียวสว่าง
-      dtHtml += '<tr style="background:#1E293B;color:#F59E0B"><td class="bold">คะแนนรวม</td>';
+      dtHtml += `<tr style="background:${tc3.headerBg};color:#F59E0B"><td class="bold">คะแนนรวม</td>`;
       totals.forEach((t, i) => {
         const pinIdx = pinnedAgeMap[dtAges[i]];
         const isBest = i === bestIdx;

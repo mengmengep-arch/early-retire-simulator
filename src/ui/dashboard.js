@@ -186,8 +186,10 @@ export function updateSummaryTable(r) {
   const bgNet     = isDark ? '#064e3b' : '#ECFDF5';
   const taxColor  = isDark ? '#fca5a5' : '#991B1B';
   const netColor  = isDark ? '#6ee7b7' : '#065F46';
+  // header rows ใน dark mode ต้องเข้มกว่า --bg-card (#1E293B) เพื่อให้เห็นความแตกต่าง
+  const headerBg  = isDark ? '#0F172A' : '#1E293B';
   t.innerHTML = `
-  <tr><th colspan="2" style="background:#1E293B;color:#F59E0B;font-size:13px">รายได้</th></tr>
+  <tr><th colspan="2" style="background:${headerBg};color:#F59E0B;font-size:13px">รายได้</th></tr>
   <tr><td>เงินเดือน ${r.retireMonth} เดือน</td><td class="right bold">฿${fmt(r.salaryIncome.salaryTotal)}</td></tr>
   <tr><td>โบนัสกลางปี</td><td class="right">${r.salaryIncome.bonusMidAmt > 0 ? '฿' + fmt(r.salaryIncome.bonusMidAmt) : '-'}</td></tr>
   <tr><td>โบนัสปลายปี</td><td class="right">${r.salaryIncome.bonusEndAmt > 0 ? '฿' + fmt(r.salaryIncome.bonusEndAmt) : '-'}</td></tr>
@@ -195,12 +197,12 @@ export function updateSummaryTable(r) {
   <tr><td>Early Merit (${r.packageMonths} เดือน)</td><td class="right bold">฿${fmt(r.earlyMerit)}</td></tr>
   <tr><td>ชดเชยกฎหมาย (${r.severanceDays} วัน)</td><td class="right bold">฿${fmt(r.severanceAmt)}</td></tr>
   <tr style="background:${bgLump}"><td class="bold" style="font-size:15px">รวมเงินก้อน</td><td class="right bold" style="font-size:15px">฿${fmt(r.earlyTotal)}</td></tr>
-  <tr><th colspan="2" style="background:#1E293B;color:#EF4444;font-size:13px">ภาษี</th></tr>
+  <tr><th colspan="2" style="background:${headerBg};color:#EF4444;font-size:13px">ภาษี</th></tr>
   <tr><td>ภาษีเงินเดือน</td><td class="right bold">${r.salaryTax.tax > 0 ? '฿' + fmt(r.salaryTax.tax) : '฿0'}</td></tr>
   <tr><td>ภาษีเงินก้อน (แยกยื่น${r.lumpTax.exemption > 0 ? ', ได้ยกเว้น 600K' : ''})</td><td class="right bold">฿${fmt(r.lumpTax.tax)}</td></tr>
   ${r.pvdTax.tax > 0 ? `<tr><td>ภาษี PVD (ถอนก่อน 55)</td><td class="right bold" style="color:#EF4444">฿${fmt(r.pvdTax.tax)}</td></tr>` : ''}
   <tr style="background:${bgTax}"><td class="bold" style="font-size:15px">ภาษีรวม</td><td class="right bold" style="font-size:15px;color:${taxColor}">฿${fmt(r.totalTax)}</td></tr>
-  <tr><th colspan="2" style="background:#1E293B;color:#10B981;font-size:13px">สุทธิ</th></tr>
+  <tr><th colspan="2" style="background:${headerBg};color:#10B981;font-size:13px">สุทธิ</th></tr>
   <tr style="background:${bgNet}"><td class="bold" style="font-size:16px">เงินสุทธิรวม</td><td class="right bold" style="font-size:16px;color:${netColor}">฿${fmt(r.netIncome)}</td></tr>
   <tr><td>Effective Tax Rate</td><td class="right bold">${r.effectiveRate.toFixed(1)}%</td></tr>
   <tr><td>PVD (${r.pvdHandling === 'rmf' ? 'โอนไป RMF' : 'ถอนออก'})</td><td class="right bold">฿${fmt(r.pvdTax.net)}</td></tr>

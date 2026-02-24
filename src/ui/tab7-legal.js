@@ -8,6 +8,10 @@ import { fmt } from '../utils.js';
 
 export function initTab5() {
   if (tab5Init) return; setTab5Init(true);
+  // ตรวจ theme เพื่อให้แถวสูงสุด (35%) ในตารางภาษีอ่านออกได้ในทั้ง 2 mode
+  const isDark = document.body.classList.contains('dark');
+  const row35Bg = isDark ? '#450a0a' : '#FEE2E2';
+  const row35Style = isDark ? `background:${row35Bg};color:#fca5a5` : `background:${row35Bg}`;
 
   document.getElementById('taxLawSection').innerHTML = `
   <div class="chart-box">
@@ -40,7 +44,7 @@ export function initTab5() {
   <tr><td>750,001 — 1,000,000</td><td class="right">20%</td><td class="right">฿115,000</td></tr>
   <tr><td>1,000,001 — 2,000,000</td><td class="right">25%</td><td class="right">฿365,000</td></tr>
   <tr><td>2,000,001 — 5,000,000</td><td class="right">30%</td><td class="right">฿1,265,000</td></tr>
-  <tr style="background:#FEE2E2"><td class="bold">5,000,001 ขึ้นไป</td><td class="right bold">35%</td><td class="right bold">-</td></tr>
+  <tr style="${row35Style}"><td class="bold">5,000,001 ขึ้นไป</td><td class="right bold">35%</td><td class="right bold">-</td></tr>
   </table></div>
   `;
 
