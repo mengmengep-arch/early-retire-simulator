@@ -177,6 +177,10 @@ body.dark #snapshotList > div > div{background:#1a2744!important;border-color:#3
 body.dark table tr:hover td{background:#1e3a5f!important}
 
 /* === Dark Mode — Heatmap colors === */
+/* highlight row ปัจจุบัน (ใช้ใน SSO rate table) */
+.hl-current{background:#FEF3C7;color:#92400E}
+body.dark .hl-current{background:#451a03!important;color:#fde68a!important}
+
 body.dark .ht-green{background:#064e3b!important;color:#6ee7b7!important}
 body.dark .ht-lgreen{background:#022c22!important;color:#6ee7b7!important}
 body.dark .ht-yellow{background:#451a03!important;color:#fde68a!important}

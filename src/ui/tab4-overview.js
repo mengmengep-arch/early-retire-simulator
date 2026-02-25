@@ -125,6 +125,7 @@ export function updateIncomeBreakdownChart() {
 function _tc() {
   const d = document.body.classList.contains('dark');
   return {
+    isDark:     d,
     grid:       d ? '#334155' : '#E2E8F0',
     btnBg:      d ? '#334155' : '#E2E8F0',
     btnColor:   d ? '#CBD5E1' : '#475569',
@@ -225,7 +226,9 @@ export function initTab2() {
     let badge = '';
     if (pinIdx !== undefined) {
       const c = PIN_COLORS[pinIdx];
-      hl = ' style="background:' + c.text + ';border-left:4px solid ' + c.bg + '"';
+      // dark mode: ใช้ accent color โปร่งใส 20% เพื่อให้ text อ่านออก / light mode: ใช้ c.text (tint)
+      const rowBg = tc.isDark ? (c.bg + '33') : c.text;
+      hl = ' style="background:' + rowBg + ';border-left:4px solid ' + c.bg + '"';
       badge = ' <span style="background:' + c.bg + ';color:#fff;padding:1px 5px;border-radius:8px;font-size:10px;font-weight:700">' + c.name + '</span>';
     } else {
       hl = d.age === mtCliffBefore ? ' style="background:' + tc.cliffBefore + '"' : d.age === mtCliffAfter ? ' style="background:' + tc.cliffAfter + '"' : '';
