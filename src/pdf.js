@@ -3,11 +3,15 @@
 // ============================================================
 import { activeProfile, CHARTS,
   tab2Init, setTab2Init, tab3Init, setTab3Init,
-  tab4Init, setTab4Init, tab5Init, setTab5Init,
-  destroyAllCharts
+  tab4Init, setTab4Init, tab5Init, setTab5Init
 } from './state.js';
 import { CONFIG, TAB_NAMES, TAB_NAMES_PDF } from './config.js';
 import { fmt, showToast } from './utils.js';
+
+// สีพื้นหลัง PDF ตาม theme ปัจจุบัน (dark หรือ light)
+function _bgColor() {
+  return document.body.classList.contains('dark') ? '#0F172A' : '#F0F4F8';
+}
 
 // ============================================================
 // สร้าง Cover page สำหรับหน้าแรกของ PDF
@@ -52,17 +56,20 @@ function createCoverPage() {
 // PDF Helper Functions — Section-by-Section + Smart Slice
 // ============================================================
 
-// เพิ่ม header + footer ในแต่ละหน้า PDF (ใช้ร่วมทุก flow)
+// เพิ่ม header + footer ในแต่ละหน้า PDF (ใช้ร่วมทุก flow) — theme-aware
 function pdfAddHeaderFooter(pdf, marginMM, pageWidthMM, pageHeightMM, headerH, footerH, tabName, pageCounter) {
   if (!tabName || !pageCounter) return;
   pageCounter.current++;
+  const _d = document.body.classList.contains('dark');
+  // Dark mode: fill page bg ด้วยสีเข้ม
+  if (_d) { pdf.setFillColor(15, 23, 42); pdf.rect(0, 0, pageWidthMM, pageHeightMM, 'F'); }
   // Header: ชื่อ Tab (ซ้ายบน)
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(10);
-  pdf.setTextColor(15, 23, 42);
+  pdf.setTextColor(_d ? 226 : 15, _d ? 232 : 23, _d ? 240 : 42);
   pdf.text(tabName, marginMM, marginMM + 6);
   // เส้นคั่น header
-  pdf.setDrawColor(229, 231, 235);
+  pdf.setDrawColor(_d ? 51 : 229, _d ? 65 : 231, _d ? 85 : 235);
   pdf.setLineWidth(0.3);
   pdf.line(marginMM, marginMM + headerH - 2, pageWidthMM - marginMM, marginMM + headerH - 2);
   // Footer: เส้นคั่น + ข้อความ
@@ -167,7 +174,7 @@ async function smartSliceToPages(pdf, canvas, domElement, usableWidthMM, usableH
     sliceCanvas.width = canvas.width;
     sliceCanvas.height = slicePx;
     const ctx = sliceCanvas.getContext('2d');
-    ctx.fillStyle = '#F0F4F8';
+    ctx.fillStyle = _bgColor();
     ctx.fillRect(0, 0, canvas.width, slicePx);
     ctx.drawImage(canvas, 0, yOffset, canvas.width, slicePx, 0, 0, canvas.width, slicePx);
     const sliceData = sliceCanvas.toDataURL('image/jpeg', 0.85);
@@ -197,8 +204,8 @@ async function addSectionsToPDF(pdf, sections, A4W, A4H, MARGIN, tabName, pageCo
     try {
       canvas = await html2canvas(el, {
         scale: 2, useCORS: true, logging: false,
-        backgroundColor: '#F0F4F8',
-        windowWidth: Math.min(el.scrollWidth + 40, 1200)
+        backgroundColor: _bgColor(),
+        windowWidth: Math.min(el.scrollWidth + 40, 1600)
       });
     } catch (err) {
       console.warn('PDF section capture failed:', err);
@@ -239,18 +246,21 @@ function addCanvasToPDF(pdf, canvas, imgWidthMM, pageHeightMM, marginMM, tabName
   const contentTop = marginMM + HEADER_H;
   const imgHeightMM = (canvas.height * usableWidth) / canvas.width;
 
-  // ฟังก์ชันเพิ่ม header + footer ในแต่ละหน้า PDF
+  // ฟังก์ชันเพิ่ม header + footer ในแต่ละหน้า PDF — theme-aware
   function addHeaderFooter() {
     if (!tabName || !pageCounter) return;
     pageCounter.current++;
+    const _d = document.body.classList.contains('dark');
+    // Dark mode: fill page bg
+    if (_d) { pdf.setFillColor(15, 23, 42); pdf.rect(0, 0, imgWidthMM, pageHeightMM, 'F'); }
 
     // === Header: ชื่อ Tab (ซ้ายบน) ===
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(10);
-    pdf.setTextColor(15, 23, 42);
+    pdf.setTextColor(_d ? 226 : 15, _d ? 232 : 23, _d ? 240 : 42);
     pdf.text(tabName, marginMM, marginMM + 6);
     // เส้นคั่น header
-    pdf.setDrawColor(229, 231, 235);
+    pdf.setDrawColor(_d ? 51 : 229, _d ? 65 : 231, _d ? 85 : 235);
     pdf.setLineWidth(0.3);
     pdf.line(marginMM, marginMM + HEADER_H - 2, imgWidthMM - marginMM, marginMM + HEADER_H - 2);
 
@@ -293,7 +303,7 @@ function addCanvasToPDF(pdf, canvas, imgWidthMM, pageHeightMM, marginMM, tabName
     sliceCanvas.width = canvas.width;
     sliceCanvas.height = thisSlicePx;
     const ctx = sliceCanvas.getContext('2d');
-    ctx.fillStyle = '#F0F4F8';
+    ctx.fillStyle = _bgColor();
     ctx.fillRect(0, 0, canvas.width, thisSlicePx);
     ctx.drawImage(canvas, 0, yOffset, canvas.width, thisSlicePx, 0, 0, canvas.width, thisSlicePx);
 
@@ -327,16 +337,6 @@ export async function exportPDF() {
     + '<div>กำลังเตรียม PDF...</div>'
     + '<div style="font-size:12px;color:#94a3b8">อาจใช้เวลา 15-30 วินาที</div>';
   document.body.appendChild(pdfOverlay);
-
-  // 1. ถ้า dark mode → switch เป็น light ก่อน (charts จะ init per-panel ใน step 6)
-  const wasDark = document.body.classList.contains('dark');
-  if (wasDark) {
-    document.body.classList.remove('dark');
-    destroyAllCharts();
-    setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
-    await new Promise(r => setTimeout(r, 300));
-    // หมายเหตุ: ไม่เรียก initTab ที่นี่ → จะ init per-panel ในขณะที่ panel visible (step 6)
-  }
 
   // 2. จำสถานะเดิม
   const panels = document.querySelectorAll('.tab-panel');
@@ -393,9 +393,9 @@ export async function exportPDF() {
         });
 
         // Init charts AFTER panel visible เพื่อให้ canvas ได้ขนาดที่ถูกต้อง
-        // dark mode: re-draw income/tax charts ด้วย light theme colors
-        if (wasDark && tabIdx === 2) window.reDrawChartsForPanel?.(2);
-        if (wasDark && tabIdx === 3) window.reDrawChartsForPanel?.(3);
+        // panels 2-3 ไม่มี lazy-init flag → ต้อง redraw ทุกครั้ง
+        if (tabIdx === 2) window.reDrawChartsForPanel?.(2);
+        if (tabIdx === 3) window.reDrawChartsForPanel?.(3);
         // lazy-init สำหรับ flagged tabs (panels 4-7)
         if (tabIdx === 4 && !tab2Init) window.initTab2();
         if (tabIdx === 5 && !tab3Init) window.initTab3();
@@ -416,8 +416,8 @@ export async function exportPDF() {
           // Fallback: ถ้าหา section ไม่ได้ → ใช้วิธีเดิม
           const tabCanvas = await html2canvas(panel, {
             scale: 2, useCORS: true, logging: false,
-            backgroundColor: '#F0F4F8',
-            windowWidth: Math.min(panel.scrollWidth, 1200)
+            backgroundColor: _bgColor(),
+            windowWidth: Math.min(panel.scrollWidth, 1600)
           });
           addCanvasToPDF(pdf, tabCanvas, A4W, A4H, MARGIN, TAB_NAMES_PDF[tabIdx], pageCounter);
         }
@@ -464,11 +464,5 @@ export async function exportPDF() {
   document.body.style.zoom = origZoom;
   panels.forEach((p, i) => p.style.display = origDisplay[i]);
   hideEls.forEach((el, i) => el.style.display = origHide[i]);
-  // คืน dark mode (ถ้าเคยเป็น dark) + reset tab flags ให้ charts re-render ใน dark theme
-  if (wasDark) {
-    document.body.classList.add('dark');
-    destroyAllCharts();
-    setTab2Init(false); setTab3Init(false); setTab4Init(false); setTab5Init(false);
-  }
   pdfOverlay.remove(); // เอา overlay ออกหลังทุกอย่างเสร็จ
 }
